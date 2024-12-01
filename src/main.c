@@ -41,7 +41,7 @@ void checkered(uint8_t* pixelBuff)
     }
 }
 
-void drawScreen(const uint8_t* pixelBuff)
+void draw(const uint8_t* pixelBuff)
 {
     const double drawScale = 8.0;
     const double padding = PADDING*drawScale;
@@ -55,32 +55,6 @@ void drawScreen(const uint8_t* pixelBuff)
         DrawRectangle(
             buffFrameOrigin.x, buffFrameOrigin.y,
             buffFrameWidth, buffFrameHeight,
-            RAYWHITE
-        );
-
-        // Draw Debug Info Frame
-        const Vector2 debugInfoFrameOrigin = {
-            buffFrameOrigin.x+buffFrameWidth+padding,
-            padding
-        };
-        const double debugInfoFrameHeight = DEBUG_INFO_HEIGHT*drawScale;
-        const double debugInfoFrameWidth = DEBUG_INFO_WIDTH*drawScale;
-        DrawRectangle(
-            debugInfoFrameOrigin.x, debugInfoFrameOrigin.y,
-            debugInfoFrameWidth, debugInfoFrameHeight,
-            RAYWHITE
-        );
-
-        // Draw Debug Buttons Frame
-        const Vector2 debugButtonsFrameOrigin = {
-            padding,
-            buffFrameOrigin.y+buffFrameHeight+padding
-        };
-        const double debugButtonsFrameHeight = DEBUG_BUTTONS_HEIGHT*drawScale;
-        const double debugButtonsFrameWidth = DEBUG_BUTTONS_WIDTH*drawScale;
-        DrawRectangle(
-            debugButtonsFrameOrigin.x, debugButtonsFrameOrigin.y,
-            debugButtonsFrameWidth, debugButtonsFrameHeight,
             RAYWHITE
         );
 
@@ -103,11 +77,37 @@ void drawScreen(const uint8_t* pixelBuff)
             }
         }
 
-    EndDrawing();
-}
+        // Draw Debug Info Frame
+        const Vector2 debugInfoFrameOrigin = {
+            buffFrameOrigin.x+buffFrameWidth+padding,
+            padding
+        };
+        const double debugInfoFrameHeight = DEBUG_INFO_HEIGHT*drawScale;
+        const double debugInfoFrameWidth = DEBUG_INFO_WIDTH*drawScale;
+        DrawRectangle(
+            debugInfoFrameOrigin.x, debugInfoFrameOrigin.y,
+            debugInfoFrameWidth, debugInfoFrameHeight,
+            RAYWHITE
+        );
 
-void draw()
-{
+        // TODO: Draw Debug info (fps/mspt, registers, stack(ptr), etc.)
+
+        // Draw Debug Buttons Frame
+        const Vector2 debugButtonsFrameOrigin = {
+            padding,
+            buffFrameOrigin.y+buffFrameHeight+padding
+        };
+        const double debugButtonsFrameHeight = DEBUG_BUTTONS_HEIGHT*drawScale;
+        const double debugButtonsFrameWidth = DEBUG_BUTTONS_WIDTH*drawScale;
+        DrawRectangle(
+            debugButtonsFrameOrigin.x, debugButtonsFrameOrigin.y,
+            debugButtonsFrameWidth, debugButtonsFrameHeight,
+            RAYWHITE
+        );
+
+        // TODO: Draw Debug Buttons (to enable pause/play, step, etc.)
+
+    EndDrawing();
 }
 
 void handleSound()
@@ -146,9 +146,11 @@ int main(void)
 
         // Handle intent
         if (willDrawFrame) {
-            drawScreen(chip8.pixelBuff);
+            // TODO: update pixelBuff
         }
         if (willHandleSound) { handleSound(); }
+
+        draw(chip8.pixelBuff);
     }
 
     CloseWindow();
