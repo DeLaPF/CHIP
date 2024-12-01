@@ -58,14 +58,52 @@ void regNEqualReg(struct cpu* cpu, uint8_t x, uint8_t y)
 }
 
 
-void setReg(struct cpu* cpu, uint8_t x, uint8_t nn)
+void setRegToConst(struct cpu* cpu, uint8_t x, uint8_t nn)
 {
     cpu->registers[x] = nn;
 }
 
-void addToReg(struct cpu* cpu, uint8_t x, uint8_t nn)
+void addConstToReg(struct cpu* cpu, uint8_t x, uint8_t nn)
 {
     cpu->registers[x] += nn; // TODO: What happens if overflow?
+}
+
+void setRegToReg(struct cpu* cpu, uint8_t x, uint8_t y)
+{
+    cpu->registers[x] = cpu->registers[y];
+}
+
+void setRegORReg(struct cpu* cpu, uint8_t x, uint8_t y)
+{
+    cpu->registers[x] = cpu->registers[x]|cpu->registers[y];
+}
+
+void setRegANDReg(struct cpu* cpu, uint8_t x, uint8_t y)
+{
+    cpu->registers[x] = cpu->registers[x]&cpu->registers[y];
+}
+
+void setRegXORReg(struct cpu* cpu, uint8_t x, uint8_t y)
+{
+    cpu->registers[x] = cpu->registers[x]^cpu->registers[y];
+}
+
+void addRegToReg(struct cpu* cpu, uint8_t x, uint8_t y)
+{
+    cpu->registers[VF] = (uint16_t)cpu->registers[x]+cpu->registers[y] > 255;
+    cpu->registers[x] = cpu->registers[x]+cpu->registers[y];
+}
+
+void setRegSubYFromX(struct cpu* cpu, uint8_t x, uint8_t y)
+{
+    cpu->registers[VF] = cpu->registers[x] >= cpu->registers[y];
+    cpu->registers[x] = cpu->registers[x]-cpu->registers[y];
+}
+
+void setRegSubXFromY(struct cpu* cpu, uint8_t x, uint8_t y)
+{
+    cpu->registers[VF] = cpu->registers[y] >= cpu->registers[x];
+    cpu->registers[x] = cpu->registers[y]-cpu->registers[x];
 }
 
 void setIdx(struct cpu* cpu, uint16_t nnn)

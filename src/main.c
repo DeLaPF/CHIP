@@ -343,13 +343,42 @@ int main(void)
                     regEqualReg(chip8.cpu, x, y);
                     break;
                 case 0x6:
-                    setReg(chip8.cpu, x, nn);
+                    setRegToConst(chip8.cpu, x, nn);
                     break;
                 case 0x7:
-                    addToReg(chip8.cpu, x, nn);
+                    addConstToReg(chip8.cpu, x, nn);
                     break;
                 case 0x8:
-                    // code block
+                    switch (n) {
+                        case 0x0:
+                            setRegToReg(chip8.cpu, x, y);
+                            break;
+                        case 0x1:
+                            setRegORReg(chip8.cpu, x, y);
+                            break;
+                        case 0x2:
+                            setRegANDReg(chip8.cpu, x, y);
+                            break;
+                        case 0x3:
+                            setRegXORReg(chip8.cpu, x, y);
+                            break;
+                        case 0x4:
+                            addRegToReg(chip8.cpu, x, y);
+                            break;
+                        case 0x5:
+                            setRegSubYFromX(chip8.cpu, x, y);
+                            break;
+                        case 0x6:
+                            break;
+                        case 0x7:
+                            setRegSubXFromY(chip8.cpu, x, y);
+                            break;
+                        case 0xE:
+                            break;
+                        default:
+                            // TODO: error
+                            break;
+                    }
                     break;
                 case 0x9:
                     regNEqualReg(chip8.cpu, x, y);
