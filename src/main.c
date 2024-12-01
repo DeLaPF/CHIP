@@ -38,7 +38,13 @@ void checkered(uint8_t* pixelBuff)
     }
 }
 
-void draw(const uint8_t* pixelBuff)
+void draw(
+    const struct chip_8* chip8,
+    double curTime,
+    double prevCycleTime,
+    double prevFrameTime,
+    double deltaTime
+)
 {
     const double drawScale = 8.0;
     const double padding = PADDING*drawScale;
@@ -62,7 +68,7 @@ void draw(const uint8_t* pixelBuff)
         };
         for (int y = 0; y < BUFF_HEIGHT; y++) {
             for (int x = 0; x < BUFF_WIDTH; x++) {
-                if (pixelBuff[y*BUFF_WIDTH+x]) {
+                if (chip8->pixelBuff[y*BUFF_WIDTH+x]) {
                     DrawRectangle(
                         pixelBuffOrigin.x+(x*drawScale),
                         pixelBuffOrigin.y+(y*drawScale),
@@ -87,7 +93,73 @@ void draw(const uint8_t* pixelBuff)
             RAYWHITE
         );
 
-        // TODO: Draw Debug info (fps/mspt, registers, stack(ptr), etc.)
+        // Draw Debug Info (fps/mspt, registers, stack(ptr), etc.)
+        char curTimeBuff[50];
+        sprintf(curTimeBuff, "Time: %.2lf", curTime);
+        DrawText(
+            curTimeBuff,
+            debugInfoFrameOrigin.x+padding,
+            debugInfoFrameOrigin.y+padding,
+            10,
+            BLACK
+        );
+        char deltaTimeBuff[50];
+        sprintf(deltaTimeBuff, "Delta: %.5lf", deltaTime);
+        DrawText(
+            deltaTimeBuff,
+            debugInfoFrameOrigin.x+padding,
+            debugInfoFrameOrigin.y+padding+10,
+            10,
+            BLACK
+        );
+        char prevCycleTimeBuff[50];
+        sprintf(prevCycleTimeBuff, "Prev Cycle: %.2lf", prevCycleTime);
+        DrawText(
+            prevCycleTimeBuff,
+            debugInfoFrameOrigin.x+padding,
+            debugInfoFrameOrigin.y+padding+20,
+            10,
+            BLACK
+        );
+        char prevFrameTimeBuff[50];
+        sprintf(prevFrameTimeBuff, "Prev Frame: %.2lf", prevFrameTime);
+        DrawText(
+            prevFrameTimeBuff,
+            debugInfoFrameOrigin.x+padding,
+            debugInfoFrameOrigin.y+padding+30,
+            10,
+            BLACK
+        );
+        // CPU info
+        char buff[120];
+        sprintf(
+            buff,
+            "0:%d  1:%d  2:%d  3:%d\n4:%d  5:%d  6:%d  7:%d\n8:%d  9:%d  A:%d  B:%d\nC:%d  D:%d  E:%d  F:%d\npc:%d",
+            chip8->cpu->registers[0],
+            chip8->cpu->registers[1],
+            chip8->cpu->registers[2],
+            chip8->cpu->registers[3],
+            chip8->cpu->registers[4],
+            chip8->cpu->registers[5],
+            chip8->cpu->registers[6],
+            chip8->cpu->registers[7],
+            chip8->cpu->registers[8],
+            chip8->cpu->registers[9],
+            chip8->cpu->registers[10],
+            chip8->cpu->registers[11],
+            chip8->cpu->registers[12],
+            chip8->cpu->registers[13],
+            chip8->cpu->registers[14],
+            chip8->cpu->registers[15],
+            chip8->cpu->pc
+        );
+        DrawText(
+            buff,
+            debugInfoFrameOrigin.x+padding,
+            debugInfoFrameOrigin.y+padding+50,
+            10,
+            BLACK
+        );
 
         // Draw Debug Buttons Frame
         const Vector2 debugButtonsFrameOrigin = {
@@ -135,12 +207,6 @@ int main(void)
     };
     checkered(chip8.pixelBuff);
 
-    // SetTargetFPS(60);
-    double prevCycleTime = GetTime();
-    double prevFrameTime = GetTime();
-    double prevSoundTime = GetTime();
-    double prevDelayTime = GetTime();
-
     printf("Loading ROM...\n");
 
     // Load bytes from rom into heap
@@ -156,6 +222,12 @@ int main(void)
     chip8.cpu->pc = PROG_START;
 
     printf("Setup Complete!\n");
+
+    // SetTargetFPS(60);
+    double prevCycleTime = GetTime();
+    double prevFrameTime = GetTime();
+    double prevSoundTime = GetTime();
+    double prevDelayTime = GetTime();
 
     // Main game loop
     while (!WindowShouldClose())  // Detect window close button or ESC key
@@ -253,7 +325,13 @@ int main(void)
         }
         if (willHandleSound) { handleSound(); }
 
-        draw(chip8.pixelBuff);
+        draw(
+            &chip8,
+            curTime,
+            prevCycleTime,
+            prevFrameTime,
+            GetFrameTime()
+        );
     }
 
     CloseWindow();
