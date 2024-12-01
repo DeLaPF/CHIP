@@ -27,7 +27,7 @@ struct chip_8 {
     struct cpu *cpu;
     uint8_t pixelBuff[2048];
     bool isPaused;
-    bool step;
+    uint8_t step;
 };
 
 void checkered(uint8_t* pixelBuff)
@@ -216,6 +216,23 @@ void draw(
             5,
             BLACK
         );
+        Rectangle step10Bounds = {
+            stepBounds.x,
+            stepBounds.y+stepBounds.height+padding,
+            40,
+            20
+        };
+        DrawRectangle(
+            step10Bounds.x,step10Bounds.y,
+            step10Bounds.width, step10Bounds.height,
+            GRAY
+        );
+        DrawText(
+            "Step 10",
+            step10Bounds.x+padding, step10Bounds.y+padding,
+            5,
+            BLACK
+        );
         if (CheckCollisionPointRec(mousePoint, pausePlayBounds)) {
             if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
                 chip8->isPaused = !chip8->isPaused;
@@ -223,7 +240,12 @@ void draw(
         }
         if (CheckCollisionPointRec(mousePoint, stepBounds)) {
             if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
-                chip8->step = true;
+                chip8->step = 1;
+            }
+        }
+        if (CheckCollisionPointRec(mousePoint, step10Bounds)) {
+            if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
+                chip8->step = 10;
             }
         }
 
@@ -301,6 +323,8 @@ int main(void)
 
         // Handle intent
         if (willCycleCpu) {
+            if (chip8.step) { chip8.step--; }
+
             // Fetch
             uint16_t opCode = chip8.cpu->heap[chip8.cpu->pc] << 8;
             opCode |= chip8.cpu->heap[chip8.cpu->pc+1];
@@ -369,11 +393,13 @@ int main(void)
                             setRegSubYFromX(chip8.cpu, x, y);
                             break;
                         case 0x6:
+                            rightShiftReg(chip8.cpu, x, y, false);
                             break;
                         case 0x7:
                             setRegSubXFromY(chip8.cpu, x, y);
                             break;
                         case 0xE:
+                            leftShiftReg(chip8.cpu, x, y, false);
                             break;
                         default:
                             // TODO: error
@@ -411,7 +437,6 @@ int main(void)
         }
         if (willHandleSound) { handleSound(); }
 
-        chip8.step = false;
         draw(
             &chip8,
             curTime,

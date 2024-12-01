@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "constants.h"
@@ -104,6 +105,20 @@ void setRegSubXFromY(struct cpu* cpu, uint8_t x, uint8_t y)
 {
     cpu->registers[VF] = cpu->registers[y] >= cpu->registers[x];
     cpu->registers[x] = cpu->registers[y]-cpu->registers[x];
+}
+
+void rightShiftReg(struct cpu* cpu, uint8_t x, uint8_t y, bool fromY)
+{
+    if (fromY) { cpu->registers[x] = cpu->registers[y]; }
+    cpu->registers[VF] = cpu->registers[x]&0x1;
+    cpu->registers[x] = cpu->registers[x] >> 1;
+}
+
+void leftShiftReg(struct cpu* cpu, uint8_t x, uint8_t y, bool fromY)
+{
+    if (fromY) { cpu->registers[x] = cpu->registers[y]; }
+    cpu->registers[VF] = (cpu->registers[x]&0x80) >> 7;
+    cpu->registers[x] = cpu->registers[x] << 1;
 }
 
 void setIdx(struct cpu* cpu, uint16_t nnn)
