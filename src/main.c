@@ -14,7 +14,8 @@
 // const char* ROM_PATH = "./roms/bc_test.ch8";
 // const char* ROM_PATH = "./roms/sc_test.ch8";
 // const char* ROM_PATH = "./roms/1-chip8-logo.ch8";
-const char* ROM_PATH = "./roms/3-corax+.ch8";
+// const char* ROM_PATH = "./roms/3-corax+.ch8";
+const char* ROM_PATH = "./roms/4-flags.ch8";
 
 // const char* ROM_PATH = "./roms/glitch_ghost.ch8";
 

@@ -94,34 +94,39 @@ void setRegXORReg(struct cpu* cpu, uint8_t x, uint8_t y)
 
 void addRegToReg(struct cpu* cpu, uint8_t x, uint8_t y)
 {
-    cpu->registers[VF] = (uint16_t)cpu->registers[x]+cpu->registers[y] > 255;
+    uint8_t vx = cpu->registers[x];
     cpu->registers[x] = cpu->registers[x]+cpu->registers[y];
+    cpu->registers[VF] = (uint16_t)vx+cpu->registers[y] > 255;
 }
 
 void setRegSubYFromX(struct cpu* cpu, uint8_t x, uint8_t y)
 {
-    cpu->registers[VF] = cpu->registers[x] >= cpu->registers[y];
+    uint8_t vx = cpu->registers[x];
     cpu->registers[x] = cpu->registers[x]-cpu->registers[y];
+    cpu->registers[VF] = vx >= cpu->registers[y];
 }
 
 void setRegSubXFromY(struct cpu* cpu, uint8_t x, uint8_t y)
 {
-    cpu->registers[VF] = cpu->registers[y] >= cpu->registers[x];
+    uint8_t vx = cpu->registers[x];
     cpu->registers[x] = cpu->registers[y]-cpu->registers[x];
+    cpu->registers[VF] = cpu->registers[y] >= vx;
 }
 
 void rightShiftReg(struct cpu* cpu, uint8_t x, uint8_t y, bool fromY)
 {
     if (fromY) { cpu->registers[x] = cpu->registers[y]; }
-    cpu->registers[VF] = cpu->registers[x]&0x1;
+    uint8_t vx = cpu->registers[x];
     cpu->registers[x] = cpu->registers[x] >> 1;
+    cpu->registers[VF] = vx&0x1;
 }
 
 void leftShiftReg(struct cpu* cpu, uint8_t x, uint8_t y, bool fromY)
 {
     if (fromY) { cpu->registers[x] = cpu->registers[y]; }
-    cpu->registers[VF] = (cpu->registers[x]&0x80) >> 7;
+    uint8_t vx = cpu->registers[x];
     cpu->registers[x] = cpu->registers[x] << 1;
+    cpu->registers[VF] = (vx&0x80) >> 7;
 }
 
 void setIdx(struct cpu* cpu, uint16_t nnn)
@@ -179,10 +184,11 @@ void setSoundTToReg(struct cpu* cpu, uint8_t x)
 
 void addRegToIdx(struct cpu* cpu, uint8_t x, bool carry)
 {
+    uint16_t idx = cpu->idx;
+    cpu->idx = idx+cpu->registers[x];
     if (carry) {
-        cpu->registers[VF] = (uint16_t)cpu->registers[x]+cpu->idx > 0xFFFF;
+        cpu->registers[VF] = idx+cpu->registers[x] > 0xFFFF;
     }
-    cpu->idx += (uint16_t)cpu->registers[x];
 }
 
 void setIdxToChar(struct cpu* cpu, uint8_t x)
