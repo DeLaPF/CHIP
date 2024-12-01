@@ -312,7 +312,6 @@ int main(void)
             uint8_t n = opCode&0x000F;
             uint8_t nn = opCode&0x00FF;
             uint16_t nnn = opCode&0x0FFF;
-            printf("op:%x, nib:%x, x:%x, y:%x, n:%x, nn:%x, nnn:%x\n", opCode, opNib, x, y, n, nn, nnn);
             switch (opNib) {
                 case 0x0:
                     switch (nn) {
