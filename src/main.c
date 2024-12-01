@@ -2,6 +2,8 @@
 
 #include "raylib.h"
 
+#include "constants.h"
+#include "cpu.h"
 #include "instructions.h"
 
 
@@ -15,21 +17,6 @@ const int DEBUG_INFO_WIDTH = 30;
 const int DEBUG_INFO_HEIGHT = 54;
 const int DEBUG_BUTTONS_WIDTH = 66;
 const int DEBUG_BUTTONS_HEIGHT = 19;
-
-const int BUFF_WIDTH = 64;
-const int BUFF_HEIGHT = 32;
-
-struct cpu {
-    uint8_t registers[16];
-    uint16_t idx;
-    uint8_t stack[64];
-    uint8_t sp;
-    uint16_t pc;
-    uint8_t heap[4096];
-
-    uint8_t delayT;
-    uint8_t soundT;
-};
 
 struct chip_8 {
     struct cpu *cpu;
@@ -150,6 +137,8 @@ int main(void)
     double prevSoundTime = GetTime();
     double prevDelayTime = GetTime();
 
+    // TODO: Load bytes from rom into heap
+
     // Main game loop
     while (!WindowShouldClose())  // Detect window close button or ESC key
     {
@@ -181,7 +170,7 @@ int main(void)
                 case 0x0:
                     switch (nn) {
                         case 0xE0:
-                            clearScreen();
+                            clearScreen(chip8.pixelBuff);
                             break;
                         case 0xEE:
                             break;
@@ -192,7 +181,7 @@ int main(void)
                     // code block
                     break;
                 case 0x1:
-                    // code block
+                    jump(chip8.cpu, nnn);
                     break;
                 case 0x2:
                     // code block
@@ -207,10 +196,10 @@ int main(void)
                     // code block
                     break;
                 case 0x6:
-                    // code block
+                    setVX(chip8.cpu, x, nn);
                     break;
                 case 0x7:
-                    // code block
+                    addToVX(chip8.cpu, x, nn);
                     break;
                 case 0x8:
                     // code block
@@ -219,7 +208,7 @@ int main(void)
                     // code block
                     break;
                 case 0xA:
-                    // code block
+                    setIdx(chip8.cpu, nnn);
                     break;
                 case 0xB:
                     // code block
@@ -228,7 +217,7 @@ int main(void)
                     // code block
                     break;
                 case 0xD:
-                    // code block
+                    updateBuffer(chip8.pixelBuff, chip8.cpu, x, y, n);
                     break;
                 case 0xE:
                     // code block

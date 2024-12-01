@@ -5,8 +5,8 @@ project(${PROJECT_NAME})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-set(SOURCES src/main.c src/instructions.c)
-set(HEADER_FILES src/instructions.h)
+set(SOURCES src/main.c src/constants.c src/instructions.c)
+set(HEADER_FILES src/constants.h src/cpu.h src/instructions.h)
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADER_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 
