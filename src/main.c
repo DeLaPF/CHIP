@@ -25,6 +25,8 @@ const int DEBUG_BUTTONS_HEIGHT = 19;
 struct chip_8 {
     struct cpu *cpu;
     uint8_t pixelBuff[2048];
+    bool isPaused;
+    bool step;
 };
 
 void checkered(uint8_t* pixelBuff)
@@ -39,11 +41,12 @@ void checkered(uint8_t* pixelBuff)
 }
 
 void draw(
-    const struct chip_8* chip8,
+    struct chip_8* chip8,
     double curTime,
     double prevCycleTime,
     double prevFrameTime,
-    double deltaTime
+    double deltaTime,
+    uint16_t opCode
 )
 {
     const double drawScale = 8.0;
@@ -131,10 +134,10 @@ void draw(
             BLACK
         );
         // CPU info
-        char buff[120];
+        char buff[140];
         sprintf(
             buff,
-            "0:%d  1:%d  2:%d  3:%d\n4:%d  5:%d  6:%d  7:%d\n8:%d  9:%d  A:%d  B:%d\nC:%d  D:%d  E:%d  F:%d\npc:%d",
+            "0:%d  1:%d  2:%d  3:%d\n4:%d  5:%d  6:%d  7:%d\n8:%d  9:%d  A:%d  B:%d\nC:%d  D:%d  E:%d  F:%d\nidx:%d  pc:%d\nOP: 0x%4x",
             chip8->cpu->registers[0],
             chip8->cpu->registers[1],
             chip8->cpu->registers[2],
@@ -151,7 +154,9 @@ void draw(
             chip8->cpu->registers[13],
             chip8->cpu->registers[14],
             chip8->cpu->registers[15],
-            chip8->cpu->pc
+            chip8->cpu->idx,
+            chip8->cpu->pc,
+            opCode
         );
         DrawText(
             buff,
@@ -175,6 +180,51 @@ void draw(
         );
 
         // TODO: Draw Debug Buttons (to enable pause/play, step, etc.)
+        Vector2 mousePoint = GetMousePosition();
+        Rectangle pausePlayBounds = {
+            debugButtonsFrameOrigin.x+padding,
+            debugButtonsFrameOrigin.y+padding,
+            40,
+            20
+        };
+        DrawRectangle(
+            pausePlayBounds.x,pausePlayBounds.y,
+            pausePlayBounds.width, pausePlayBounds.height,
+            GRAY
+        );
+        DrawText(
+            "P/P",
+            pausePlayBounds.x+padding, pausePlayBounds.y+padding,
+            5,
+            BLACK
+        );
+        Rectangle stepBounds = {
+            pausePlayBounds.x,
+            pausePlayBounds.y+pausePlayBounds.height+padding,
+            40,
+            20
+        };
+        DrawRectangle(
+            stepBounds.x,stepBounds.y,
+            stepBounds.width, stepBounds.height,
+            GRAY
+        );
+        DrawText(
+            "Step",
+            stepBounds.x+padding, stepBounds.y+padding,
+            5,
+            BLACK
+        );
+        if (CheckCollisionPointRec(mousePoint, pausePlayBounds)) {
+            if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
+                chip8->isPaused = !chip8->isPaused;
+            }
+        }
+        if (CheckCollisionPointRec(mousePoint, stepBounds)) {
+            if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
+                chip8->step = true;
+            }
+        }
 
     EndDrawing();
 }
@@ -204,6 +254,7 @@ int main(void)
     struct chip_8 chip8 = {
         &cpu,
         { 0 },
+        true,
     };
     checkered(chip8.pixelBuff);
 
@@ -232,15 +283,20 @@ int main(void)
     // Main game loop
     while (!WindowShouldClose())  // Detect window close button or ESC key
     {
+        bool isPaused = chip8.isPaused && !chip8.step;
         // Handle time and determine intent to avoid getting out of sync
         // (may not actally be and issue?)
         const double curTime = GetTime();
-        const bool willCycleCpu = (curTime - prevCycleTime) >= cycleThreshold;
-        const bool willDrawFrame = (curTime - prevFrameTime) >= frameThreshold;
-        const bool willHandleSound = (curTime - prevSoundTime) >= soundThreshold;
+        const bool willCycleCpu = (curTime - prevCycleTime) >= cycleThreshold && !isPaused;
+        const bool willDrawFrame = (curTime - prevFrameTime) >= frameThreshold && !isPaused;
+        const bool willHandleSound = (curTime - prevSoundTime) >= soundThreshold && !isPaused;
         if (willCycleCpu) { prevCycleTime = curTime; }
         if (willDrawFrame) { prevFrameTime = curTime; }
         if (willHandleSound) { prevSoundTime = curTime; }
+
+        // For Debug
+        uint16_t opCode = chip8.cpu->heap[chip8.cpu->pc] << 8;
+        opCode |= chip8.cpu->heap[chip8.cpu->pc+1];
 
         // Handle intent
         if (willCycleCpu) {
@@ -250,12 +306,13 @@ int main(void)
             chip8.cpu->pc += 2;
 
             // Decode and Execute
-            uint8_t opNib = opCode&0xF000 >> 12;
-            uint8_t x = opCode&0x0F00 >> 8;
-            uint8_t y = opCode&0x00F0 >> 4;
+            uint8_t opNib = (opCode&0xF000) >> 12;
+            uint8_t x = (opCode&0x0F00) >> 8;
+            uint8_t y = (opCode&0x00F0) >> 4;
             uint8_t n = opCode&0x000F;
             uint8_t nn = opCode&0x00FF;
             uint16_t nnn = opCode&0x0FFF;
+            printf("op:%x, nib:%x, x:%x, y:%x, n:%x, nn:%x, nnn:%x\n", opCode, opNib, x, y, n, nn, nnn);
             switch (opNib) {
                 case 0x0:
                     switch (nn) {
@@ -325,12 +382,14 @@ int main(void)
         }
         if (willHandleSound) { handleSound(); }
 
+        chip8.step = false;
         draw(
             &chip8,
             curTime,
             prevCycleTime,
             prevFrameTime,
-            GetFrameTime()
+            GetFrameTime(),
+            opCode
         );
     }
 
