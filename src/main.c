@@ -1,5 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 #include "raylib.h"
 
@@ -14,8 +16,7 @@ const char* ROM_PATH = "./roms/bc_test.ch8";
 
 const float cycleThreshold = 1 / 700.0;
 const float frameThreshold = 1 / 60.0;
-const float soundThreshold = 1 / 60.0;
-const float delayThreshold = 1 / 60.0;
+const float timerThreshold = 1 / 60.0;
 
 const int PADDING = 1;
 const int DEBUG_INFO_WIDTH = 30;
@@ -135,10 +136,10 @@ void draw(
             BLACK
         );
         // CPU info
-        char buff[140];
+        char buff[161];
         sprintf(
             buff,
-            "0:%d  1:%d  2:%d  3:%d\n4:%d  5:%d  6:%d  7:%d\n8:%d  9:%d  A:%d  B:%d\nC:%d  D:%d  E:%d  F:%d\nidx:%d  pc:%d\nOP: 0x%4x",
+            "0:%d  1:%d  2:%d  3:%d\n4:%d  5:%d  6:%d  7:%d\n8:%d  9:%d  A:%d  B:%d\nC:%d  D:%d  E:%d  F:%d\nidx:%d  pc:%d\nOP: 0x%4x\nDelay: %d\nSound: %d",
             chip8->cpu->registers[0],
             chip8->cpu->registers[1],
             chip8->cpu->registers[2],
@@ -157,7 +158,9 @@ void draw(
             chip8->cpu->registers[15],
             chip8->cpu->idx,
             chip8->cpu->pc,
-            opCode
+            opCode,
+            chip8->cpu->delayT,
+            chip8->cpu->soundT
         );
         DrawText(
             buff,
@@ -263,6 +266,9 @@ int main(void)
     const int windowHeight = 450;
     InitWindow(windowWidth, windowHeight, "CHIP-8");
 
+    // Init rand
+    srand(time(NULL));
+
     // Chip-8
     struct cpu cpu = {
         {0},  // registers[16],
@@ -300,8 +306,7 @@ int main(void)
     // SetTargetFPS(60);
     double prevCycleTime = GetTime();
     double prevFrameTime = GetTime();
-    double prevSoundTime = GetTime();
-    double prevDelayTime = GetTime();
+    double prevTimerTime = GetTime();
 
     // Main game loop
     while (!WindowShouldClose())  // Detect window close button or ESC key
@@ -312,10 +317,10 @@ int main(void)
         const double curTime = GetTime();
         const bool willCycleCpu = (curTime - prevCycleTime) >= cycleThreshold && !isPaused;
         const bool willDrawFrame = (curTime - prevFrameTime) >= frameThreshold && !isPaused;
-        const bool willHandleSound = (curTime - prevSoundTime) >= soundThreshold && !isPaused;
+        const bool willHandleTimers = (curTime - prevTimerTime) >= timerThreshold && !isPaused;
         if (willCycleCpu) { prevCycleTime = curTime; }
         if (willDrawFrame) { prevFrameTime = curTime; }
-        if (willHandleSound) { prevSoundTime = curTime; }
+        if (willHandleTimers) { prevTimerTime = curTime; }
 
         // For Debug
         uint16_t opCode = chip8.cpu->heap[chip8.cpu->pc] << 8;
@@ -413,18 +418,56 @@ int main(void)
                     setIdx(chip8.cpu, nnn);
                     break;
                 case 0xB:
-                    // code block
+                    jumpConstPlusReg(chip8.cpu, x, nnn, false);
                     break;
                 case 0xC:
-                    // code block
+                    setRegConstMaskRand(chip8.cpu, x, nn);
                     break;
                 case 0xD:
                     updateBuffer(chip8.pixelBuff, chip8.cpu, x, y, n);
                     break;
                 case 0xE:
+                    // TODO: handle keys
+                    switch(nn) {
+                        case 0x9E:
+                            break;
+                        case 0xA1:
+                            break;
+                        default:
+                            // TODO: error
+                            break;
+                    };
                     // code block
                     break;
                 case 0xF:
+                    switch(nn) {
+                        case 0x07:
+                            setRegToDelayT(chip8.cpu, x);
+                            break;
+                        case 0x0A:
+                            break;
+                        case 0x15:
+                            setDelayTToReg(chip8.cpu, x);
+                            break;
+                        case 0x18:
+                            setSoundTToReg(chip8.cpu, x);
+                            break;
+                        case 0x1E:
+                            addRegToIdx(chip8.cpu, x, true);
+                            break;
+                        case 0x33:
+                            setHeapIdxToRegDigits(chip8.cpu, x);
+                            break;
+                        case 0x55:
+                            storeRegisters(chip8.cpu, x, false);
+                            break;
+                        case 0x65:
+                            loadMemory(chip8.cpu, x, false);
+                            break;
+                        default:
+                            // TODO: error
+                            break;
+                    };
                     // code block
                     break;
                 default:
@@ -435,7 +478,11 @@ int main(void)
         if (willDrawFrame) {
             // TODO: update pixelBuff
         }
-        if (willHandleSound) { handleSound(); }
+        if (willHandleTimers) {
+            handleSound();
+            if (chip8.cpu->delayT) { chip8.cpu->delayT--; }
+            if (chip8.cpu->soundT) { chip8.cpu->soundT--; }
+        }
 
         draw(
             &chip8,

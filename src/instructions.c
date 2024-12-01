@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "constants.h"
 #include "cpu.h"
@@ -124,6 +125,77 @@ void leftShiftReg(struct cpu* cpu, uint8_t x, uint8_t y, bool fromY)
 void setIdx(struct cpu* cpu, uint16_t nnn)
 {
     cpu->idx = nnn;
+}
+
+void jumpConstPlusReg(struct cpu* cpu, uint8_t x, uint16_t nnn, bool force0)
+{
+    if (force0) { x = 0; }
+    cpu->pc = nnn+cpu->registers[x];
+}
+
+void setRegConstMaskRand(struct cpu* cpu, uint8_t x, uint8_t nn)
+{
+    uint8_t r = rand() % 255;
+    cpu->registers[x] = r&nn;
+}
+
+void setRegToDelayT(struct cpu* cpu, uint8_t x)
+{
+    cpu->registers[x] = cpu->delayT;
+}
+
+void setDelayTToReg(struct cpu* cpu, uint8_t x)
+{
+     cpu->delayT = cpu->registers[x];
+}
+
+void setSoundTToReg(struct cpu* cpu, uint8_t x)
+{
+     cpu->soundT = cpu->registers[x];
+}
+
+void addRegToIdx(struct cpu* cpu, uint8_t x, bool carry)
+{
+    if (carry) {
+        cpu->registers[VF] = (uint16_t)cpu->registers[x]+cpu->idx > 255;
+    }
+    cpu->idx += cpu->registers[x];
+}
+
+void setHeapIdxToRegDigits(struct cpu* cpu, uint8_t x)
+{
+    uint8_t val = cpu->registers[x];
+    if (val > 100) {
+        cpu->heap[cpu->idx+2] = val%10;
+        val /= 10;
+        cpu->heap[cpu->idx+1] = val%10;
+        val /= 10;
+        cpu->heap[cpu->idx] = val%10;
+    } else if (val > 10) {
+        cpu->heap[cpu->idx+1] = val%10;
+        val /= 10;
+        cpu->heap[cpu->idx] = val%10;
+    } else {
+        cpu->heap[cpu->idx] = val%10;
+    }
+}
+
+void storeRegisters(struct cpu* cpu, uint8_t x, bool increment)
+{
+    for (int i = 0; i < x; i++) {
+        cpu->heap[cpu->idx+i] = cpu->registers[i];
+    }
+    if (x == 0) { cpu->heap[cpu->idx] = cpu->registers[x]; }
+    if (increment) { cpu->idx += x+1; }
+}
+
+void loadMemory(struct cpu* cpu, uint8_t x, bool increment)
+{
+    for (int i = 0; i < x; i++) {
+        cpu->registers[i] = cpu->heap[cpu->idx+i];
+    }
+    if (x == 0) { cpu->registers[x] = cpu->heap[cpu->idx]; }
+    if (increment) { cpu->idx += x+1; }
 }
 
 void updateBuffer(uint8_t* pixelBuff, struct cpu* cpu, uint8_t x, uint8_t y, uint8_t n)

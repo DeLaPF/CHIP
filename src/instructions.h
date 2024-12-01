@@ -21,6 +21,15 @@ void setRegSubXFromY(struct cpu* cpu, uint8_t x, uint8_t y); // 8XY7 (set vx to 
 void rightShiftReg(struct cpu* cpu, uint8_t x, uint8_t y, bool fromY); // 8XY6 ((opt set vx to vy) right shift vx)
 void leftShiftReg(struct cpu* cpu, uint8_t x, uint8_t y, bool fromY); // 8XYE ((opt set vx to vy) left shift vx)
 void setIdx(struct cpu* cpu, uint16_t nnn);           // ANNN (set index register I)
+void jumpConstPlusReg(struct cpu* cpu, uint8_t x, uint16_t nnn, bool force0); // BXNN/BNNN (jump to nnn + vx (or v0 if force0))
+void setRegConstMaskRand(struct cpu* cpu, uint8_t x, uint8_t nn); // CXNN (set vx to rand&nn)
+void setRegToDelayT(struct cpu* cpu, uint8_t x); // FX07 (set vx to delayT)
+void setDelayTToReg(struct cpu* cpu, uint8_t x); // FX15 (set delayT to vx)
+void setSoundTToReg(struct cpu* cpu, uint8_t x); // FX18 (set soundT to vx)
+void addRegToIdx(struct cpu* cpu, uint8_t x, bool carry); // FX1E (set idx to idx+vx (opt carry to vf))
+void setHeapIdxToRegDigits(struct cpu* cpu, uint8_t x); // FX33 (set heap bytes at idx to digit in vx)
+void storeRegisters(struct cpu* cpu, uint8_t x, bool increment); // FX55 (store registers v0-vx memory from idx (opt incr idx))
+void loadMemory(struct cpu* cpu, uint8_t x, bool increment); // FX55 (load memory from idx into register v0-vx (opt incr idx))
 void updateBuffer(uint8_t* pixelBuff, struct cpu* cpu, uint8_t x, uint8_t y, uint8_t n); // DXYN (display/draw)
 
 #endif
