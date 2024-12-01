@@ -8,7 +8,8 @@
 #include "instructions.h"
 
 
-const char* ROM_PATH = "./roms/IBM Logo.ch8";
+// const char* ROM_PATH = "./roms/IBM Logo.ch8";
+const char* ROM_PATH = "./roms/bc_test.ch8";
 
 
 const float cycleThreshold = 1 / 700.0;
@@ -319,39 +320,39 @@ int main(void)
                             clearScreen(chip8.pixelBuff);
                             break;
                         case 0xEE:
+                            subRet(chip8.cpu);
                             break;
                         default:
                             // TODO: error
                             break;
                     }
-                    // code block
                     break;
                 case 0x1:
                     jump(chip8.cpu, nnn);
                     break;
                 case 0x2:
-                    // code block
+                    subCall(chip8.cpu, nnn);
                     break;
                 case 0x3:
-                    // code block
+                    regEqualConst(chip8.cpu, x, nn);
                     break;
                 case 0x4:
-                    // code block
+                    regNEqualConst(chip8.cpu, x, nn);
                     break;
                 case 0x5:
-                    // code block
+                    regEqualReg(chip8.cpu, x, y);
                     break;
                 case 0x6:
-                    setVX(chip8.cpu, x, nn);
+                    setReg(chip8.cpu, x, nn);
                     break;
                 case 0x7:
-                    addToVX(chip8.cpu, x, nn);
+                    addToReg(chip8.cpu, x, nn);
                     break;
                 case 0x8:
                     // code block
                     break;
                 case 0x9:
-                    // code block
+                    regNEqualReg(chip8.cpu, x, y);
                     break;
                 case 0xA:
                     setIdx(chip8.cpu, nnn);

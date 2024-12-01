@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <stdio.h>
 
 #include "constants.h"
 #include "cpu.h"
@@ -12,17 +11,59 @@ void clearScreen(uint8_t* pixelBuff)
     }
 }
 
+void subRet(struct cpu* cpu)
+{
+    cpu->sp -= 1; // TODO: throw error if sp < 0
+    cpu->pc = cpu->stack[cpu->sp];
+}
+
 void jump(struct cpu* cpu, uint16_t nnn)
 {
     cpu->pc = nnn;
 }
 
-void setVX(struct cpu* cpu, uint8_t x, uint8_t nn)
+void subCall(struct cpu* cpu, uint16_t nnn)
+{
+    cpu->stack[cpu->sp] = cpu->pc;
+    cpu->pc = nnn;
+    cpu->sp += 1;
+}
+
+void regEqualConst(struct cpu* cpu, uint8_t x, uint16_t nn)
+{
+    if (cpu->registers[x] == nn) {
+        cpu->pc += 2;
+    }
+}
+
+void regNEqualConst(struct cpu* cpu, uint8_t x, uint16_t nn)
+{
+    if (cpu->registers[x] != nn) {
+        cpu->pc += 2;
+    }
+}
+
+void regEqualReg(struct cpu* cpu, uint8_t x, uint8_t y)
+{
+    if (cpu->registers[x] == cpu->registers[y]) {
+        cpu->pc += 2;
+    }
+}
+
+void regNEqualReg(struct cpu* cpu, uint8_t x, uint8_t y)
+{
+    if (cpu->registers[x] != cpu->registers[y]) {
+        cpu->pc += 2;
+    }
+}
+
+
+void setReg(struct cpu* cpu, uint8_t x, uint8_t nn)
 {
     cpu->registers[x] = nn;
 }
 
-void addToVX(struct cpu* cpu, uint8_t x, uint8_t nn)
+void addToReg(struct cpu* cpu, uint8_t x, uint8_t nn)
 {
     cpu->registers[x] += nn; // TODO: What happens if overflow?
 }
