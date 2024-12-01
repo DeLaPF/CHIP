@@ -210,19 +210,17 @@ void setHeapIdxToRegDigits(struct cpu* cpu, uint8_t x)
 
 void storeRegisters(struct cpu* cpu, uint8_t x, bool increment)
 {
-    for (int i = 0; i < x; i++) {
+    for (int i = 0; i <= x; i++) {
         cpu->heap[cpu->idx+i] = cpu->registers[i];
     }
-    if (x == 0) { cpu->heap[cpu->idx] = cpu->registers[x]; }
     if (increment) { cpu->idx += x+1; }
 }
 
 void loadMemory(struct cpu* cpu, uint8_t x, bool increment)
 {
-    for (int i = 0; i < x; i++) {
+    for (int i = 0; i <= x; i++) {
         cpu->registers[i] = cpu->heap[cpu->idx+i];
     }
-    if (x == 0) { cpu->registers[x] = cpu->heap[cpu->idx]; }
     if (increment) { cpu->idx += x+1; }
 }
 

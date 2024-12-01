@@ -10,8 +10,9 @@
 #include "instructions.h"
 
 
-// const char* ROM_PATH = "./roms/IBM Logo.ch8";
-const char* ROM_PATH = "./roms/bc_test.ch8";
+// const char* ROM_PATH = "./roms/ibm_logo.ch8";
+// const char* ROM_PATH = "./roms/bc_test.ch8";
+const char* ROM_PATH = "./roms/sc_test.ch8";
 
 
 const float cycleThreshold = 1 / 700.0;
