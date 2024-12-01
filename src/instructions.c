@@ -41,11 +41,11 @@ void updateBuffer(uint8_t* pixelBuff, struct cpu* cpu, uint8_t x, uint8_t y, uin
 {
     printf("updateBuffer\n");
     for (int yOff = 0; yOff < n; yOff++) {
-        int wrappedY = (y + yOff) % BUFF_HEIGHT;
+        int wrappedY = (cpu->registers[y] + yOff) % BUFF_HEIGHT;
         uint8_t spriteByte = cpu->heap[cpu->idx+yOff];
         uint8_t byteMask = 0x80;
         for (int xOff = 0; xOff < 8; xOff++) {
-            int wrappedX = (x + xOff) % BUFF_WIDTH;
+            int wrappedX = (cpu->registers[x] + xOff) % BUFF_WIDTH;
             if (spriteByte&byteMask) {
                 if (pixelBuff[wrappedY*BUFF_WIDTH+wrappedX]) {
                     cpu->registers[VF] = 1;
