@@ -2,7 +2,10 @@
 
 #include "raylib.h"
 
+#include "instructions.h"
 
+
+const float cycleThreshold = 1 / 700.0;
 const float frameThreshold = 1 / 60.0;
 const float soundThreshold = 1 / 60.0;
 const float delayThreshold = 1 / 60.0;
@@ -16,18 +19,21 @@ const int DEBUG_BUTTONS_HEIGHT = 19;
 const int BUFF_WIDTH = 64;
 const int BUFF_HEIGHT = 32;
 
-struct chip_8 {
-    uint8_t registers[16];
-    uint8_t pixelBuff[2048];
-};
-
 struct cpu {
     uint8_t registers[16];
-    uint16_t idxReg;
+    uint16_t idx;
     uint8_t stack[64];
-    uint8_t stackPtr;
-    uint16_t programCtr;
+    uint8_t sp;
+    uint16_t pc;
     uint8_t heap[4096];
+
+    uint8_t delayT;
+    uint8_t soundT;
+};
+
+struct chip_8 {
+    struct cpu *cpu;
+    uint8_t pixelBuff[2048];
 };
 
 void checkered(uint8_t* pixelBuff)
@@ -122,13 +128,24 @@ int main(void)
     InitWindow(windowWidth, windowHeight, "CHIP-8");
 
     // Chip-8
+    struct cpu cpu = {
+        {0},  // registers[16],
+        0,    // idx,
+        {0},  // stack[64],
+        0,    // sp,
+        0,    // pc,
+        {0},  // heap[4096],
+        0,    // delayT,
+        0,    // soundT
+    };
     struct chip_8 chip8 = {
-        { 0 },
+        &cpu,
         { 0 },
     };
     checkered(chip8.pixelBuff);
 
     // SetTargetFPS(60);
+    double prevCycleTime = GetTime();
     double prevFrameTime = GetTime();
     double prevSoundTime = GetTime();
     double prevDelayTime = GetTime();
@@ -139,12 +156,91 @@ int main(void)
         // Handle time and determine intent to avoid getting out of sync
         // (may not actally be and issue?)
         const double curTime = GetTime();
+        const bool willCycleCpu = (curTime - prevCycleTime) >= cycleThreshold;
         const bool willDrawFrame = (curTime - prevFrameTime) >= frameThreshold;
         const bool willHandleSound = (curTime - prevSoundTime) >= soundThreshold;
+        if (willCycleCpu) { prevCycleTime = curTime; }
         if (willDrawFrame) { prevFrameTime = curTime; }
         if (willHandleSound) { prevSoundTime = curTime; }
 
         // Handle intent
+        if (willCycleCpu) {
+            // Fetch
+            uint16_t opCode = chip8.cpu->heap[chip8.cpu->pc] << 8;
+            opCode |= chip8.cpu->heap[chip8.cpu->pc+1];
+            chip8.cpu->pc += 2;
+
+            // Decode and Execute
+            uint8_t opNib = opCode&0xF000 >> 12;
+            uint8_t x = opCode&0x0F00 >> 8;
+            uint8_t y = opCode&0x00F0 >> 4;
+            uint8_t n = opCode&0x000F;
+            uint8_t nn = opCode&0x00FF;
+            uint16_t nnn = opCode&0x0FFF;
+            switch (opNib) {
+                case 0x0:
+                    switch (nn) {
+                        case 0xE0:
+                            clearScreen();
+                            break;
+                        case 0xEE:
+                            break;
+                        default:
+                            // TODO: error
+                            break;
+                    }
+                    // code block
+                    break;
+                case 0x1:
+                    // code block
+                    break;
+                case 0x2:
+                    // code block
+                    break;
+                case 0x3:
+                    // code block
+                    break;
+                case 0x4:
+                    // code block
+                    break;
+                case 0x5:
+                    // code block
+                    break;
+                case 0x6:
+                    // code block
+                    break;
+                case 0x7:
+                    // code block
+                    break;
+                case 0x8:
+                    // code block
+                    break;
+                case 0x9:
+                    // code block
+                    break;
+                case 0xA:
+                    // code block
+                    break;
+                case 0xB:
+                    // code block
+                    break;
+                case 0xC:
+                    // code block
+                    break;
+                case 0xD:
+                    // code block
+                    break;
+                case 0xE:
+                    // code block
+                    break;
+                case 0xF:
+                    // code block
+                    break;
+                default:
+                    // TODO: error
+                    break;
+            };
+        }
         if (willDrawFrame) {
             // TODO: update pixelBuff
         }
