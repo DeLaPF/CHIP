@@ -1,70 +1,101 @@
-/*******************************************************************************************
-*
-*   raylib [core] example - Basic window
-*
-*   Welcome to raylib!
-*
-*   To test examples, just press F6 and execute 'raylib_compile_execute' script
-*   Note that compiled executable is placed in the same folder as .c file
-*
-*   To test the examples on Web, press F6 and execute 'raylib_compile_execute_web' script
-*   Web version of the program is generated in the same folder as .c file
-*
-*   You can find all basic examples on C:\raylib\raylib\examples folder or
-*   raylib official webpage: www.raylib.com
-*
-*   Enjoy using raylib. :)
-*
-*   Example originally created with raylib 1.0, last time updated with raylib 1.0
-*
-*   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
-*   BSD-like license that allows static linking with closed source software
-*
-*   Copyright (c) 2013-2024 Ramon Santamaria (@raysan5)
-*
-********************************************************************************************/
+#include <stdint.h>
 
 #include "raylib.h"
 
-//------------------------------------------------------------------------------------
-// Program main entry point
-//------------------------------------------------------------------------------------
+
+const float frameThreshold = 1 / 60.0;
+const float soundThreshold = 1 / 60.0;
+const float delayThreshold = 1 / 60.0;
+
+struct chip_8 {
+    uint8_t registers[16];
+    uint8_t frameBuff[2048];
+};
+
+void checkered(uint8_t* frameBuff) {
+    for (int y = 0; y < 32; y++) {
+        for (int x = 0; x < 64; x++) {
+            if (((x%2)+(y%2)+1)%2) {
+                frameBuff[y*64+x] = 1;
+            }
+        }
+    }
+}
+
+void draw()
+{
+}
+
+void handleSound()
+{
+    // TODO: impl
+}
+
 int main(void)
 {
-    // Initialization
-    //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+    const int windowWidth = 800;
+    const int windowHeight = 450;
+    InitWindow(windowWidth, windowHeight, "CHIP-8");
 
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+    // Chip-8 screen
+    const Vector2 virtualScreenOrigin = { -10.0f, -10.0f };
+    const double drawScale = 8.0;
+    const double borderWidth = 1.0;
+    const Vector2 pixelOrigin = {
+        -virtualScreenOrigin.x+(borderWidth*drawScale),
+        -virtualScreenOrigin.y+(borderWidth*drawScale),
+    };
+    Rectangle virtualScreen = {
+        0.0f, 0.0f,
+        (64.0+(borderWidth*2))*drawScale, (32.0+(borderWidth*2))*drawScale
+    };
+    struct chip_8 chip8 = {
+        { 0 },
+        { 0 },
+    };
+    checkered(chip8.frameBuff);
 
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
+    // SetTargetFPS(60);
+    double prevFrameTime = GetTime();
+    double prevSoundTime = GetTime();
+    double prevDelayTime = GetTime();
 
     // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
+    while (!WindowShouldClose())  // Detect window close button or ESC key
     {
-        // Update
-        //----------------------------------------------------------------------------------
-        // TODO: Update your variables here
-        //----------------------------------------------------------------------------------
+        // Handle time and determine intent to avoid getting out of sync
+        // (may not actally be and issue?)
+        const double curTime = GetTime();
+        const bool willDrawFrame = (curTime - prevFrameTime) >= frameThreshold;
+        const bool willHandleSound = (curTime - prevSoundTime) >= soundThreshold;
+        if (willDrawFrame) { prevFrameTime = curTime; }
+        if (willHandleSound) { prevSoundTime = curTime; }
 
-        // Draw
-        //----------------------------------------------------------------------------------
-        BeginDrawing();
-
-            ClearBackground(RAYWHITE);
-
-            DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
-
-        EndDrawing();
-        //----------------------------------------------------------------------------------
+        // Handle intent
+        if (willDrawFrame) {
+            // draw(&pixelBuff);
+            BeginDrawing();
+                ClearBackground(GRAY);
+                DrawRectanglePro(virtualScreen, virtualScreenOrigin, 0.0f, RAYWHITE);
+                for (int y = 0; y < 32; y++) {
+                    for (int x = 0; x < 64; x++) {
+                        if (chip8.frameBuff[y*64+x]) {
+                            DrawRectangle(
+                                pixelOrigin.x+(x*drawScale),
+                                pixelOrigin.y+(y*drawScale),
+                                drawScale,
+                                drawScale,
+                                BLACK
+                            );
+                        }
+                    }
+                }
+            EndDrawing();
+        }
+        if (willHandleSound) { handleSound(); }
     }
 
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow();        // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
+    CloseWindow();
 
     return 0;
 }
