@@ -287,6 +287,11 @@ int main(void)
     };
     checkered(chip8.pixelBuff);
 
+    printf("Loading Font...\n");
+    for (int i = 0; i < FONT_BYTES; i++) {
+        chip8.cpu->heap[FONT_START+i] = FONT[i];
+    }
+
     printf("Loading ROM...\n");
 
     // Load bytes from rom into heap
@@ -454,6 +459,9 @@ int main(void)
                             break;
                         case 0x1E:
                             addRegToIdx(chip8.cpu, x, true);
+                            break;
+                        case 0x29:
+                            setIdxToChar(chip8.cpu, x);
                             break;
                         case 0x33:
                             setHeapIdxToRegDigits(chip8.cpu, x);

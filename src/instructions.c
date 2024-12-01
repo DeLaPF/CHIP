@@ -162,6 +162,11 @@ void addRegToIdx(struct cpu* cpu, uint8_t x, bool carry)
     cpu->idx += cpu->registers[x];
 }
 
+void setIdxToChar(struct cpu* cpu, uint8_t x)
+{
+    cpu->idx = (cpu->registers[x]*BYTES_PER_CHAR)+FONT_START;
+}
+
 void setHeapIdxToRegDigits(struct cpu* cpu, uint8_t x)
 {
     uint8_t val = cpu->registers[x];
