@@ -1,10 +1,14 @@
 #include <stdint.h>
+#include <stdio.h>
 
 #include "raylib.h"
 
 #include "constants.h"
 #include "cpu.h"
 #include "instructions.h"
+
+
+const char* ROM_PATH = "./roms/IBM Logo.ch8";
 
 
 const float cycleThreshold = 1 / 700.0;
@@ -137,7 +141,21 @@ int main(void)
     double prevSoundTime = GetTime();
     double prevDelayTime = GetTime();
 
-    // TODO: Load bytes from rom into heap
+    printf("Loading ROM...\n");
+
+    // Load bytes from rom into heap
+    uint8_t* buffer = &chip8.cpu->heap[PROG_START];
+    FILE* fileptr = fopen(ROM_PATH, "rb");
+    fseek(fileptr, 0, SEEK_END);
+    long filelen = ftell(fileptr);
+    rewind(fileptr);
+    fread(buffer, filelen, 1, fileptr);
+    fclose(fileptr);
+
+    // Set pc
+    chip8.cpu->pc = PROG_START;
+
+    printf("Setup Complete!\n");
 
     // Main game loop
     while (!WindowShouldClose())  // Detect window close button or ESC key
