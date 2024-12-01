@@ -193,19 +193,11 @@ void setIdxToChar(struct cpu* cpu, uint8_t x)
 void setHeapIdxToRegDigits(struct cpu* cpu, uint8_t x)
 {
     uint8_t val = cpu->registers[x];
-    if (val > 100) {
-        cpu->heap[cpu->idx+2] = val%10;
-        val /= 10;
-        cpu->heap[cpu->idx+1] = val%10;
-        val /= 10;
-        cpu->heap[cpu->idx] = val%10;
-    } else if (val > 10) {
-        cpu->heap[cpu->idx+1] = val%10;
-        val /= 10;
-        cpu->heap[cpu->idx] = val%10;
-    } else {
-        cpu->heap[cpu->idx] = val%10;
-    }
+    cpu->heap[cpu->idx+2] = val%10;
+    val /= 10;
+    cpu->heap[cpu->idx+1] = val%10;
+    val /= 10;
+    cpu->heap[cpu->idx] = val%10;
 }
 
 void storeRegisters(struct cpu* cpu, uint8_t x, bool increment)
