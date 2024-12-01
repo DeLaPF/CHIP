@@ -435,14 +435,15 @@ int main(void)
                     // TODO: handle keys
                     switch(nn) {
                         case 0x9E:
+                            skipIfKeyPressed(chip8.cpu, x);
                             break;
                         case 0xA1:
+                            skipIfKeyNPressed(chip8.cpu, x);
                             break;
                         default:
                             // TODO: error
                             break;
                     };
-                    // code block
                     break;
                 case 0xF:
                     switch(nn) {
@@ -450,6 +451,7 @@ int main(void)
                             setRegToDelayT(chip8.cpu, x);
                             break;
                         case 0x0A:
+                            waitForKeypress(chip8.cpu, x);
                             break;
                         case 0x15:
                             setDelayTToReg(chip8.cpu, x);
@@ -476,7 +478,6 @@ int main(void)
                             // TODO: error
                             break;
                     };
-                    // code block
                     break;
                 default:
                     // TODO: error

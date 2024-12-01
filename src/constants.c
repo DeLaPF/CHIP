@@ -1,5 +1,7 @@
 #include <stdint.h>
 
+#include "raylib.h"
+
 const int BUFF_WIDTH = 64;
 const int BUFF_HEIGHT = 32;
 
@@ -26,4 +28,16 @@ const uint8_t FONT[80] = {
     0xE0, 0x90, 0x90, 0x90, 0xE0, // D
     0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+};
+
+const uint8_t IND_TO_KEY[16] = {
+    KEY_X,
+    KEY_ONE, KEY_TWO, KEY_THREE,
+    KEY_Q, KEY_W, KEY_E,
+    KEY_A, KEY_S, KEY_D,
+    KEY_Z, KEY_C,
+    KEY_FOUR,
+    KEY_R,
+    KEY_F,
+    KEY_V
 };

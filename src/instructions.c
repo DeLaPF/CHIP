@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "raylib.h"
+
 #include "constants.h"
 #include "cpu.h"
 
@@ -137,6 +139,27 @@ void setRegConstMaskRand(struct cpu* cpu, uint8_t x, uint8_t nn)
 {
     uint8_t r = rand() % 255;
     cpu->registers[x] = r&nn;
+}
+
+void skipIfKeyPressed(struct cpu* cpu, uint8_t x)
+{
+    if (IsKeyDown(IND_TO_KEY[cpu->registers[x]])) {
+        cpu->pc += 2;
+    }
+}
+
+void skipIfKeyNPressed(struct cpu* cpu, uint8_t x)
+{
+    if (!IsKeyDown(IND_TO_KEY[cpu->registers[x]])) {
+        cpu->pc += 2;
+    }
+}
+
+void waitForKeypress(struct cpu* cpu, uint8_t x)
+{
+    if (!IsKeyDown(IND_TO_KEY[cpu->registers[x]])) {
+        cpu->pc -= 2;
+    }
 }
 
 void setRegToDelayT(struct cpu* cpu, uint8_t x)
