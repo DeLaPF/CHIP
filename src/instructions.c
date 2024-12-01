@@ -180,9 +180,9 @@ void setSoundTToReg(struct cpu* cpu, uint8_t x)
 void addRegToIdx(struct cpu* cpu, uint8_t x, bool carry)
 {
     if (carry) {
-        cpu->registers[VF] = (uint16_t)cpu->registers[x]+cpu->idx > 255;
+        cpu->registers[VF] = (uint16_t)cpu->registers[x]+cpu->idx > 0xFFFF;
     }
-    cpu->idx += cpu->registers[x];
+    cpu->idx += (uint16_t)cpu->registers[x];
 }
 
 void setIdxToChar(struct cpu* cpu, uint8_t x)

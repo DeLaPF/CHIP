@@ -4,7 +4,7 @@
 struct cpu {
     uint8_t registers[16];
     uint16_t idx;
-    uint8_t stack[64];
+    uint16_t stack[16];
     uint8_t sp;
     uint16_t pc;
     uint8_t heap[4096];

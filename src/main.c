@@ -12,7 +12,11 @@
 
 // const char* ROM_PATH = "./roms/ibm_logo.ch8";
 // const char* ROM_PATH = "./roms/bc_test.ch8";
-const char* ROM_PATH = "./roms/sc_test.ch8";
+// const char* ROM_PATH = "./roms/sc_test.ch8";
+// const char* ROM_PATH = "./roms/1-chip8-logo.ch8";
+const char* ROM_PATH = "./roms/3-corax+.ch8";
+
+// const char* ROM_PATH = "./roms/glitch_ghost.ch8";
 
 
 const float cycleThreshold = 1 / 700.0;
@@ -137,10 +141,19 @@ void draw(
             BLACK
         );
         // CPU info
-        char buff[161];
+        char buff[200];
         sprintf(
             buff,
-            "0:%d  1:%d  2:%d  3:%d\n4:%d  5:%d  6:%d  7:%d\n8:%d  9:%d  A:%d  B:%d\nC:%d  D:%d  E:%d  F:%d\nidx:%d  pc:%d\nOP: 0x%4x\nDelay: %d\nSound: %d",
+            "0:%x  1:%x  2:%x  3:%x\n"
+            "4:%x  5:%x  6:%x  7:%x\n"
+            "8:%x  9:%x  A:%x  B:%x\n"
+            "C:%x  D:%x  E:%x  F:%x\n"
+            "idx:%x\n"
+            "pc:%x\n"
+            "sp:%x\n"
+            "ret:%x\n"
+            "OP: 0x%4x\n"
+            "Delay: %d\nSound: %d",
             chip8->cpu->registers[0],
             chip8->cpu->registers[1],
             chip8->cpu->registers[2],
@@ -159,6 +172,8 @@ void draw(
             chip8->cpu->registers[15],
             chip8->cpu->idx,
             chip8->cpu->pc,
+            chip8->cpu->sp,
+            chip8->cpu->sp ? chip8->cpu->stack[chip8->cpu->sp-1] : 0x0,
             opCode,
             chip8->cpu->delayT,
             chip8->cpu->soundT
@@ -358,7 +373,7 @@ int main(void)
                             subRet(chip8.cpu);
                             break;
                         default:
-                            // TODO: error
+                            printf("Error Unknown Instruction: 0x0X%x\n", nn);
                             break;
                     }
                     break;
@@ -413,7 +428,7 @@ int main(void)
                             leftShiftReg(chip8.cpu, x, y, false);
                             break;
                         default:
-                            // TODO: error
+                            printf("Error Unknown Instruction: 0x8XY%x\n", n);
                             break;
                     }
                     break;
@@ -433,7 +448,6 @@ int main(void)
                     updateBuffer(chip8.pixelBuff, chip8.cpu, x, y, n);
                     break;
                 case 0xE:
-                    // TODO: handle keys
                     switch(nn) {
                         case 0x9E:
                             skipIfKeyPressed(chip8.cpu, x);
@@ -442,7 +456,7 @@ int main(void)
                             skipIfKeyNPressed(chip8.cpu, x);
                             break;
                         default:
-                            // TODO: error
+                            printf("Error Unknown Instruction: 0xEX%x\n", nn);
                             break;
                     };
                     break;
@@ -476,12 +490,12 @@ int main(void)
                             loadMemory(chip8.cpu, x, false);
                             break;
                         default:
-                            // TODO: error
+                            printf("Error Unknown Instruction: 0xFX%x\n", nn);
                             break;
                     };
                     break;
                 default:
-                    // TODO: error
+                    printf("Error Unknown Instruction (Very Bad): 0x%x\n", opCode);
                     break;
             };
         }
