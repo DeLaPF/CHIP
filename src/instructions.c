@@ -77,19 +77,22 @@ void setRegToReg(struct cpu* cpu, uint8_t x, uint8_t y)
     cpu->registers[x] = cpu->registers[y];
 }
 
-void setRegORReg(struct cpu* cpu, uint8_t x, uint8_t y)
+void setRegORReg(struct cpu* cpu, uint8_t x, uint8_t y, bool resetVF)
 {
     cpu->registers[x] = cpu->registers[x]|cpu->registers[y];
+    if (resetVF) { cpu->registers[VF] = 0; }
 }
 
-void setRegANDReg(struct cpu* cpu, uint8_t x, uint8_t y)
+void setRegANDReg(struct cpu* cpu, uint8_t x, uint8_t y, bool resetVF)
 {
     cpu->registers[x] = cpu->registers[x]&cpu->registers[y];
+    if (resetVF) { cpu->registers[VF] = 0; }
 }
 
-void setRegXORReg(struct cpu* cpu, uint8_t x, uint8_t y)
+void setRegXORReg(struct cpu* cpu, uint8_t x, uint8_t y, bool resetVF)
 {
     cpu->registers[x] = cpu->registers[x]^cpu->registers[y];
+    if (resetVF) { cpu->registers[VF] = 0; }
 }
 
 void addRegToReg(struct cpu* cpu, uint8_t x, uint8_t y)

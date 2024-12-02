@@ -10,16 +10,6 @@
 #include "instructions.h"
 
 
-// const char* ROM_PATH = "./roms/ibm_logo.ch8";
-// const char* ROM_PATH = "./roms/bc_test.ch8";
-// const char* ROM_PATH = "./roms/sc_test.ch8";
-// const char* ROM_PATH = "./roms/1-chip8-logo.ch8";
-// const char* ROM_PATH = "./roms/3-corax+.ch8";
-const char* ROM_PATH = "./roms/4-flags.ch8";
-
-// const char* ROM_PATH = "./roms/glitch_ghost.ch8";
-
-
 const float cycleThreshold = 1 / 700.0;
 const float frameThreshold = 1 / 60.0;
 const float timerThreshold = 1 / 60.0;
@@ -277,8 +267,13 @@ void handleSound()
     // TODO: impl
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
+    if (argc < 2) {
+        printf("Error: specify ROM PATH");
+        return 0;
+    }
+
     const int windowWidth = 800;
     const int windowHeight = 450;
     InitWindow(windowWidth, windowHeight, "CHIP-8");
@@ -309,11 +304,12 @@ int main(void)
         chip8.cpu->heap[FONT_START+i] = FONT[i];
     }
 
-    printf("Loading ROM...\n");
+    const char* romPath = argv[1];
+    printf("Loading %s...\n", romPath);
 
     // Load bytes from rom into heap
     uint8_t* buffer = &chip8.cpu->heap[PROG_START];
-    FILE* fileptr = fopen(ROM_PATH, "rb");
+    FILE* fileptr = fopen(romPath, "rb");
     fseek(fileptr, 0, SEEK_END);
     long filelen = ftell(fileptr);
     rewind(fileptr);
@@ -337,7 +333,8 @@ int main(void)
         // Handle time and determine intent to avoid getting out of sync
         // (may not actally be and issue?)
         const double curTime = GetTime();
-        const bool willCycleCpu = (curTime - prevCycleTime) >= cycleThreshold && !isPaused;
+        // const bool willCycleCpu = (curTime - prevCycleTime) >= cycleThreshold && !isPaused;
+        const bool willCycleCpu = !isPaused;
         const bool willDrawFrame = (curTime - prevFrameTime) >= frameThreshold && !isPaused;
         const bool willHandleTimers = (curTime - prevTimerTime) >= timerThreshold && !isPaused;
         if (willCycleCpu) { prevCycleTime = curTime; }
@@ -405,13 +402,13 @@ int main(void)
                             setRegToReg(chip8.cpu, x, y);
                             break;
                         case 0x1:
-                            setRegORReg(chip8.cpu, x, y);
+                            setRegORReg(chip8.cpu, x, y, true);
                             break;
                         case 0x2:
-                            setRegANDReg(chip8.cpu, x, y);
+                            setRegANDReg(chip8.cpu, x, y, true);
                             break;
                         case 0x3:
-                            setRegXORReg(chip8.cpu, x, y);
+                            setRegXORReg(chip8.cpu, x, y, true);
                             break;
                         case 0x4:
                             addRegToReg(chip8.cpu, x, y);
@@ -485,10 +482,10 @@ int main(void)
                             setHeapIdxToRegDigits(chip8.cpu, x);
                             break;
                         case 0x55:
-                            storeRegisters(chip8.cpu, x, false);
+                            storeRegisters(chip8.cpu, x, true);
                             break;
                         case 0x65:
-                            loadMemory(chip8.cpu, x, false);
+                            loadMemory(chip8.cpu, x, true);
                             break;
                         default:
                             printf("Error Unknown Instruction: 0xFX%x\n", nn);
