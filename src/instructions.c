@@ -163,10 +163,22 @@ void skipIfKeyNPressed(struct cpu* cpu, uint8_t x)
     }
 }
 
+static int keyInd = -1;
 void waitForKeypress(struct cpu* cpu, uint8_t x)
 {
-    if (!IsKeyDown(IND_TO_KEY[cpu->registers[x]])) {
+    if (keyInd < 0) {
+        for (int i = 0; i <= 0xF; i++) {
+            if (IsKeyDown(IND_TO_KEY[i])) {
+                keyInd = i;
+            }
+        }
+    }
+
+    if (keyInd < 0 || IsKeyDown(IND_TO_KEY[keyInd])) {
         cpu->pc -= 2;
+    } else {
+        cpu->registers[x] = keyInd;
+        keyInd = -1;
     }
 }
 
