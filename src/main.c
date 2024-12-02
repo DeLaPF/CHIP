@@ -284,8 +284,9 @@ int main(int argc, char *argv[])
     struct chip_8 chip8 = {
         &cpu,
         { 0 },
-        true,
+        false,
     };
+    if (argc > 2) { chip8.isPaused = argv[2][0] == 'p'; }
 
     printf("Loading Font...\n");
     for (int i = 0; i < FONT_BYTES; i++) {
@@ -314,6 +315,7 @@ int main(int argc, char *argv[])
     double prevFrameTime = GetTime();
     double prevTimerTime = GetTime();
 
+    uint16_t prevOpCode = 0;
     // Main game loop
     while (!WindowShouldClose())  // Detect window close button or ESC key
     {
@@ -321,8 +323,8 @@ int main(int argc, char *argv[])
         // Handle time and determine intent to avoid getting out of sync
         // (may not actally be and issue?)
         const double curTime = GetTime();
-        // const bool willCycleCpu = (curTime - prevCycleTime) >= cycleThreshold && !isPaused;
-        const bool willCycleCpu = !isPaused;
+        const bool willCycleCpu = (curTime - prevCycleTime) >= cycleThreshold && !isPaused;
+        // const bool willCycleCpu = !isPaused;
         const bool willDrawFrame = (curTime - prevFrameTime) >= frameThreshold && !isPaused;
         const bool willHandleTimers = (curTime - prevTimerTime) >= timerThreshold && !isPaused;
         if (willCycleCpu) { prevCycleTime = curTime; }
@@ -359,7 +361,8 @@ int main(int argc, char *argv[])
                             subRet(chip8.cpu);
                             break;
                         default:
-                            printf("Error Unknown Instruction: 0x0X%x\n", nn);
+                            printf("Error Unknown Instruction: 0x%x\n", opCode);
+                            chip8.isPaused = true;
                             break;
                     }
                     break;
@@ -414,7 +417,8 @@ int main(int argc, char *argv[])
                             leftShiftReg(chip8.cpu, x, y, false);
                             break;
                         default:
-                            printf("Error Unknown Instruction: 0x8XY%x\n", n);
+                            printf("Error Unknown Instruction: 0x%x\n", opCode);
+                            chip8.isPaused = true;
                             break;
                     }
                     break;
@@ -442,7 +446,9 @@ int main(int argc, char *argv[])
                             skipIfKeyNPressed(chip8.cpu, x);
                             break;
                         default:
-                            printf("Error Unknown Instruction: 0xEX%x\n", nn);
+                            printf("Error Unknown Instruction: 0x%x\n", opCode);
+                            printf("Prev OP: %x\n", prevOpCode);
+                            chip8.isPaused = true;
                             break;
                     };
                     break;
@@ -476,12 +482,14 @@ int main(int argc, char *argv[])
                             loadMemory(chip8.cpu, x, true);
                             break;
                         default:
-                            printf("Error Unknown Instruction: 0xFX%x\n", nn);
+                            printf("Error Unknown Instruction: 0x%x\n", opCode);
+                            chip8.isPaused = true;
                             break;
                     };
                     break;
                 default:
                     printf("Error Unknown Instruction (Very Bad): 0x%x\n", opCode);
+                    chip8.isPaused = true;
                     break;
             };
         }
@@ -502,6 +510,7 @@ int main(int argc, char *argv[])
             GetFrameTime(),
             opCode
         );
+        prevOpCode = opCode;
     }
 
     CloseWindow();
