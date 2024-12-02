@@ -27,17 +27,6 @@ struct chip_8 {
     uint8_t step;
 };
 
-void checkered(uint8_t* pixelBuff)
-{
-    for (int y = 0; y < BUFF_HEIGHT; y++) {
-        for (int x = 0; x < BUFF_WIDTH; x++) {
-            if (((x%2)+(y%2)+1)%2) {
-                pixelBuff[y*BUFF_WIDTH+x] = 1;
-            }
-        }
-    }
-}
-
 void draw(
     struct chip_8* chip8,
     double curTime,
@@ -297,7 +286,6 @@ int main(int argc, char *argv[])
         { 0 },
         true,
     };
-    checkered(chip8.pixelBuff);
 
     printf("Loading Font...\n");
     for (int i = 0; i < FONT_BYTES; i++) {

@@ -227,18 +227,24 @@ void loadMemory(struct cpu* cpu, uint8_t x, bool increment)
 
 void updateBuffer(uint8_t* pixelBuff, struct cpu* cpu, uint8_t x, uint8_t y, uint8_t n)
 {
+    uint8_t vx = cpu->registers[x]%BUFF_WIDTH;
+    uint8_t vy = cpu->registers[y]%BUFF_HEIGHT;
+
     for (int yOff = 0; yOff < n; yOff++) {
-        int wrappedY = (cpu->registers[y] + yOff) % BUFF_HEIGHT;
+        int py = vy + yOff;
+        if (py < 0 || py >= BUFF_HEIGHT) { continue; }
         uint8_t spriteByte = cpu->heap[cpu->idx+yOff];
         uint8_t byteMask = 0x80;
         for (int xOff = 0; xOff < 8; xOff++) {
-            int wrappedX = (cpu->registers[x] + xOff) % BUFF_WIDTH;
+            int px = vx + xOff;
+            if (px < 0 || px >= BUFF_WIDTH) { continue; }
+            int pInd = py*BUFF_WIDTH+px;
             if (spriteByte&byteMask) {
-                if (pixelBuff[wrappedY*BUFF_WIDTH+wrappedX]) {
+                if (pixelBuff[pInd]) {
                     cpu->registers[VF] = 1;
                 }
 
-                pixelBuff[wrappedY*BUFF_WIDTH+wrappedX] ^= 1;
+                pixelBuff[pInd] ^= 1;
             }
             byteMask >>= 1;
         }
