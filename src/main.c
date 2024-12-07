@@ -340,24 +340,18 @@ int main(int argc, char *argv[])
             if (chip8.step) { chip8.step--; }
 
             // Fetch
-            uint16_t opCode = chip8.ram->heap[chip8.cpu->pc] << 8;
-            opCode |= chip8.ram->heap[chip8.cpu->pc+1];
-            chip8.cpu->pc += 2;
+            Op op = fetchOp(chip8.cpu, chip8.ram);
 
-            // Decode and Execute
-            uint8_t opNib = (opCode&0xF000) >> 12;
-            uint8_t x = (opCode&0x0F00) >> 8;
-            uint8_t y = (opCode&0x00F0) >> 4;
-            uint8_t n = opCode&0x000F;
-            uint8_t nn = opCode&0x00FF;
-            uint16_t nnn = opCode&0x0FFF;
-            Instruction instruction = decode(opNib, n, nn);
+            // Decode
+            Instruction instruction = decode(op.nib, op.n, op.nn);
+
+            // Execute
             if (!instruction) {
-                printf("Error Unknown Instruction: 0x%x\n", opCode);
+                printf("Error Unknown Instruction: 0x%x\n", op.code);
                 printf("Prev OP: %x\n", prevOpCode);
                 chip8.isPaused = true;
             } else {
-                instruction(&chip8, x, y, n, nn, nnn);
+                instruction(&chip8, op.x, op.y, op.n, op.nn, op.nnn);
             }
         }
         if (willDrawFrame) {

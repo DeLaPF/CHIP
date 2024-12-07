@@ -8,6 +8,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(SOURCES
     src/main.c
 	src/constants.c
+    src/cpu.c
 	src/instructions.c
     src/keyboard.c
     src/ram.c
