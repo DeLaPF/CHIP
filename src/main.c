@@ -298,6 +298,11 @@ int main(int argc, char *argv[])
         .kbd=&kbd,
         .isPaused=false,
         .step=0,
+        .resetVF=true,
+        .fromY=false,
+        .force0=false,
+        .carry=true,
+        .increment=true,
     };
     if (argc > 2) { chip8.isPaused = argv[2][0] == 'p'; }
 
@@ -346,147 +351,14 @@ int main(int argc, char *argv[])
             uint8_t n = opCode&0x000F;
             uint8_t nn = opCode&0x00FF;
             uint16_t nnn = opCode&0x0FFF;
-            switch (opNib) {
-                case 0x0:
-                    switch (nn) {
-                        case 0xE0:
-                            clearScreen(&chip8);
-                            break;
-                        case 0xEE:
-                            subRet(&chip8);
-                            break;
-                        default:
-                            printf("Error Unknown Instruction: 0x%x\n", opCode);
-                            chip8.isPaused = true;
-                            break;
-                    }
-                    break;
-                case 0x1:
-                    jump(&chip8, nnn);
-                    break;
-                case 0x2:
-                    subCall(&chip8, nnn);
-                    break;
-                case 0x3:
-                    regEqualConst(&chip8, x, nn);
-                    break;
-                case 0x4:
-                    regNEqualConst(&chip8, x, nn);
-                    break;
-                case 0x5:
-                    regEqualReg(&chip8, x, y);
-                    break;
-                case 0x6:
-                    setRegToConst(&chip8, x, nn);
-                    break;
-                case 0x7:
-                    addConstToReg(&chip8, x, nn);
-                    break;
-                case 0x8:
-                    switch (n) {
-                        case 0x0:
-                            setRegToReg(&chip8, x, y);
-                            break;
-                        case 0x1:
-                            setRegORReg(&chip8, x, y, true);
-                            break;
-                        case 0x2:
-                            setRegANDReg(&chip8, x, y, true);
-                            break;
-                        case 0x3:
-                            setRegXORReg(&chip8, x, y, true);
-                            break;
-                        case 0x4:
-                            addRegToReg(&chip8, x, y);
-                            break;
-                        case 0x5:
-                            setRegSubYFromX(&chip8, x, y);
-                            break;
-                        case 0x6:
-                            rightShiftReg(&chip8, x, y, false);
-                            break;
-                        case 0x7:
-                            setRegSubXFromY(&chip8, x, y);
-                            break;
-                        case 0xE:
-                            leftShiftReg(&chip8, x, y, false);
-                            break;
-                        default:
-                            printf("Error Unknown Instruction: 0x%x\n", opCode);
-                            chip8.isPaused = true;
-                            break;
-                    }
-                    break;
-                case 0x9:
-                    regNEqualReg(&chip8, x, y);
-                    break;
-                case 0xA:
-                    setIdx(&chip8, nnn);
-                    break;
-                case 0xB:
-                    jumpConstPlusReg(&chip8, x, nnn, false);
-                    break;
-                case 0xC:
-                    setRegConstMaskRand(&chip8, x, nn);
-                    break;
-                case 0xD:
-                    updateBuffer(&chip8, x, y, n);
-                    break;
-                case 0xE:
-                    switch(nn) {
-                        case 0x9E:
-                            skipIfKeyPressed(&chip8, x);
-                            break;
-                        case 0xA1:
-                            skipIfKeyNPressed(&chip8, x);
-                            break;
-                        default:
-                            printf("Error Unknown Instruction: 0x%x\n", opCode);
-                            printf("Prev OP: %x\n", prevOpCode);
-                            chip8.isPaused = true;
-                            break;
-                    };
-                    break;
-                case 0xF:
-                    switch(nn) {
-                        case 0x07:
-                            setRegToDelayT(&chip8, x);
-                            break;
-                        case 0x0A:
-                            waitForKeypress(&chip8, x);
-                            break;
-                        case 0x15:
-                            setDelayTToReg(&chip8, x);
-                            break;
-                        case 0x18:
-                            setSoundTToReg(&chip8, x);
-                            break;
-                        case 0x1E:
-                            addRegToIdx(&chip8, x, true);
-                            break;
-                        case 0x29:
-                            setIdxToChar(&chip8, x);
-                            break;
-                        case 0x33:
-                            setHeapIdxToRegDigits(&chip8, x);
-                            break;
-                        case 0x55:
-                            storeRegisters(&chip8, x, true);
-                            break;
-                        case 0x65:
-                            loadMemory(&chip8, x, true);
-                            break;
-                        default:
-                            printf("Error Unknown Instruction: 0x%x\n", opCode);
-                            chip8.isPaused = true;
-                            break;
-                    };
-                    break;
-                default:
-                    printf("Error Unknown Instruction (Very Bad): 0x%x\n", opCode);
-                    chip8.isPaused = true;
-                    break;
-            };
+            Instruction instruction = decode(opNib, n, nn);
+            if (!instruction) {
+                printf("Error Unknown Instruction: 0x%x\n", opCode);
+                printf("Prev OP: %x\n", prevOpCode);
+                chip8.isPaused = true;
+            } else {
+                instruction(&chip8, x, y, n, nn, nnn);
+            }
         }
         if (willDrawFrame) {
             // TODO: update pixelBuff

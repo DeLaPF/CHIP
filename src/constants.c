@@ -1,7 +1,5 @@
 #include <stdint.h>
 
-#include "raylib.h"
-
 const int BUFF_WIDTH = 64;
 const int BUFF_HEIGHT = 32;
 
