@@ -10,7 +10,6 @@ set(SOURCES
 	src/constants.c
 	src/instructions.c
     src/keyboard.c
-	src/memory_mapper.c
     src/ram.c
 )
 set(HEADER_FILES
@@ -19,7 +18,6 @@ set(HEADER_FILES
 	src/display.h
 	src/instructions.h
     src/keyboard.h
-	src/memory_mapper.h
 	src/ram.h
 )
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADER_FILES})

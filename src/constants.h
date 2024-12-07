@@ -1,6 +1,8 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+#include <stdint.h>
+
 extern const int BUFF_WIDTH;
 extern const int BUFF_HEIGHT;
 

@@ -3,13 +3,11 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "raylib.h"
-
+#include "chip8.h"
 #include "constants.h"
-#include "cpu.h"
 #include "instructions.h"
-#include "memory_mapper.h"
 
+#include "raylib.h"
 
 const float cycleThreshold = 1 / 700.0;
 const float frameThreshold = 1 / 60.0;
@@ -21,15 +19,18 @@ const int DEBUG_INFO_HEIGHT = 54;
 const int DEBUG_BUTTONS_WIDTH = 66;
 const int DEBUG_BUTTONS_HEIGHT = 19;
 
-struct chip_8 {
-    struct cpu *cpu;
-    uint8_t pixelBuff[2048];
-    bool isPaused;
-    uint8_t step;
-};
+void setup(Chip8* chip8, const char* romPath) {
+    printf("Loading Font...\n");
+    loadFont(chip8->ram);
+
+    printf("Loading ROM %s...\n", romPath);
+    loadROM(chip8->ram, romPath);
+
+    chip8->cpu->pc = PROG_START;
+}
 
 void draw(
-    struct chip_8* chip8,
+    Chip8* chip8,
     double curTime,
     double prevCycleTime,
     double prevFrameTime,
@@ -59,7 +60,7 @@ void draw(
         };
         for (int y = 0; y < BUFF_HEIGHT; y++) {
             for (int x = 0; x < BUFF_WIDTH; x++) {
-                if (chip8->pixelBuff[y*BUFF_WIDTH+x]) {
+                if (chip8->scr->pixelBuff[y*BUFF_WIDTH+x]) {
                     DrawRectangle(
                         pixelBuffOrigin.x+(x*drawScale),
                         pixelBuffOrigin.y+(y*drawScale),
@@ -154,10 +155,10 @@ void draw(
             chip8->cpu->idx,
             chip8->cpu->pc,
             chip8->cpu->sp,
-            chip8->cpu->sp ? chip8->cpu->stack[chip8->cpu->sp-1] : 0x0,
+            chip8->cpu->sp ? chip8->ram->stack[chip8->cpu->sp-1] : 0x0,
             opCode,
-            chip8->cpu->delayT,
-            chip8->cpu->soundT
+            chip8->ram->delayTimer,
+            chip8->ram->soundTimer
         );
         DrawText(
             buff,
@@ -272,43 +273,31 @@ int main(int argc, char *argv[])
     srand(time(NULL));
 
     // Chip-8
-    struct cpu cpu = {
-        {0},  // registers[16],
-        0,    // idx,
-        {0},  // stack[64],
-        0,    // sp,
-        0,    // pc,
-        {0},  // heap[4096],
-        0,    // delayT,
-        0,    // soundT
+    Cpu cpu = {
+        .registers={0},
+        .idx=0,
+        .sp=0,
+        .pc=0,
     };
-    struct chip_8 chip8 = {
-        &cpu,
-        { 0 },
-        false,
+    RAM ram = {
+        .delayTimer=0,
+        .soundTimer=0,
+        .stack={0},
+        .heap={0},
+    };
+    Display scr = {
+        .pixelBuff={0},
+    };
+    Chip8 chip8 = {
+        .cpu=&cpu,
+        .ram=&ram,
+        .scr=&scr,
+        .isPaused=false,
+        .step=0,
     };
     if (argc > 2) { chip8.isPaused = argv[2][0] == 'p'; }
 
-    printf("Loading Font...\n");
-    for (int i = 0; i < FONT_BYTES; i++) {
-        chip8.cpu->heap[FONT_START+i] = FONT[i];
-    }
-
-    const char* romPath = argv[1];
-    printf("Loading %s...\n", romPath);
-
-    // Load bytes from rom into heap
-    uint8_t* buffer = &chip8.cpu->heap[PROG_START];
-    FILE* fileptr = fopen(romPath, "rb");
-    fseek(fileptr, 0, SEEK_END);
-    long filelen = ftell(fileptr);
-    rewind(fileptr);
-    fread(buffer, filelen, 1, fileptr);
-    fclose(fileptr);
-
-    // Set pc
-    chip8.cpu->pc = PROG_START;
-
+    setup(&chip8, argv[1]);
     printf("Setup Complete!\n");
 
     // SetTargetFPS(60);
@@ -333,16 +322,16 @@ int main(int argc, char *argv[])
         if (willHandleTimers) { prevTimerTime = curTime; }
 
         // For Debug
-        uint16_t opCode = chip8.cpu->heap[chip8.cpu->pc] << 8;
-        opCode |= chip8.cpu->heap[chip8.cpu->pc+1];
+        uint16_t opCode = chip8.ram->heap[chip8.cpu->pc] << 8;
+        opCode |= chip8.ram->heap[chip8.cpu->pc+1];
 
         // Handle intent
         if (willCycleCpu) {
             if (chip8.step) { chip8.step--; }
 
             // Fetch
-            uint16_t opCode = chip8.cpu->heap[chip8.cpu->pc] << 8;
-            opCode |= chip8.cpu->heap[chip8.cpu->pc+1];
+            uint16_t opCode = chip8.ram->heap[chip8.cpu->pc] << 8;
+            opCode |= chip8.ram->heap[chip8.cpu->pc+1];
             chip8.cpu->pc += 2;
 
             // Decode and Execute
@@ -356,10 +345,10 @@ int main(int argc, char *argv[])
                 case 0x0:
                     switch (nn) {
                         case 0xE0:
-                            clearScreen(chip8.pixelBuff);
+                            clearScreen(&chip8);
                             break;
                         case 0xEE:
-                            subRet(chip8.cpu);
+                            subRet(&chip8);
                             break;
                         default:
                             printf("Error Unknown Instruction: 0x%x\n", opCode);
@@ -368,54 +357,54 @@ int main(int argc, char *argv[])
                     }
                     break;
                 case 0x1:
-                    jump(chip8.cpu, nnn);
+                    jump(&chip8, nnn);
                     break;
                 case 0x2:
-                    subCall(chip8.cpu, nnn);
+                    subCall(&chip8, nnn);
                     break;
                 case 0x3:
-                    regEqualConst(chip8.cpu, x, nn);
+                    regEqualConst(&chip8, x, nn);
                     break;
                 case 0x4:
-                    regNEqualConst(chip8.cpu, x, nn);
+                    regNEqualConst(&chip8, x, nn);
                     break;
                 case 0x5:
-                    regEqualReg(chip8.cpu, x, y);
+                    regEqualReg(&chip8, x, y);
                     break;
                 case 0x6:
-                    setRegToConst(chip8.cpu, x, nn);
+                    setRegToConst(&chip8, x, nn);
                     break;
                 case 0x7:
-                    addConstToReg(chip8.cpu, x, nn);
+                    addConstToReg(&chip8, x, nn);
                     break;
                 case 0x8:
                     switch (n) {
                         case 0x0:
-                            setRegToReg(chip8.cpu, x, y);
+                            setRegToReg(&chip8, x, y);
                             break;
                         case 0x1:
-                            setRegORReg(chip8.cpu, x, y, true);
+                            setRegORReg(&chip8, x, y, true);
                             break;
                         case 0x2:
-                            setRegANDReg(chip8.cpu, x, y, true);
+                            setRegANDReg(&chip8, x, y, true);
                             break;
                         case 0x3:
-                            setRegXORReg(chip8.cpu, x, y, true);
+                            setRegXORReg(&chip8, x, y, true);
                             break;
                         case 0x4:
-                            addRegToReg(chip8.cpu, x, y);
+                            addRegToReg(&chip8, x, y);
                             break;
                         case 0x5:
-                            setRegSubYFromX(chip8.cpu, x, y);
+                            setRegSubYFromX(&chip8, x, y);
                             break;
                         case 0x6:
-                            rightShiftReg(chip8.cpu, x, y, false);
+                            rightShiftReg(&chip8, x, y, false);
                             break;
                         case 0x7:
-                            setRegSubXFromY(chip8.cpu, x, y);
+                            setRegSubXFromY(&chip8, x, y);
                             break;
                         case 0xE:
-                            leftShiftReg(chip8.cpu, x, y, false);
+                            leftShiftReg(&chip8, x, y, false);
                             break;
                         default:
                             printf("Error Unknown Instruction: 0x%x\n", opCode);
@@ -424,27 +413,27 @@ int main(int argc, char *argv[])
                     }
                     break;
                 case 0x9:
-                    regNEqualReg(chip8.cpu, x, y);
+                    regNEqualReg(&chip8, x, y);
                     break;
                 case 0xA:
-                    setIdx(chip8.cpu, nnn);
+                    setIdx(&chip8, nnn);
                     break;
                 case 0xB:
-                    jumpConstPlusReg(chip8.cpu, x, nnn, false);
+                    jumpConstPlusReg(&chip8, x, nnn, false);
                     break;
                 case 0xC:
-                    setRegConstMaskRand(chip8.cpu, x, nn);
+                    setRegConstMaskRand(&chip8, x, nn);
                     break;
                 case 0xD:
-                    updateBuffer(chip8.pixelBuff, chip8.cpu, x, y, n);
+                    updateBuffer(&chip8, x, y, n);
                     break;
                 case 0xE:
                     switch(nn) {
                         case 0x9E:
-                            skipIfKeyPressed(chip8.cpu, x);
+                            skipIfKeyPressed(&chip8, x);
                             break;
                         case 0xA1:
-                            skipIfKeyNPressed(chip8.cpu, x);
+                            skipIfKeyNPressed(&chip8, x);
                             break;
                         default:
                             printf("Error Unknown Instruction: 0x%x\n", opCode);
@@ -456,31 +445,31 @@ int main(int argc, char *argv[])
                 case 0xF:
                     switch(nn) {
                         case 0x07:
-                            setRegToDelayT(chip8.cpu, x);
+                            setRegToDelayT(&chip8, x);
                             break;
                         case 0x0A:
-                            waitForKeypress(chip8.cpu, x);
+                            waitForKeypress(&chip8, x);
                             break;
                         case 0x15:
-                            setDelayTToReg(chip8.cpu, x);
+                            setDelayTToReg(&chip8, x);
                             break;
                         case 0x18:
-                            setSoundTToReg(chip8.cpu, x);
+                            setSoundTToReg(&chip8, x);
                             break;
                         case 0x1E:
-                            addRegToIdx(chip8.cpu, x, true);
+                            addRegToIdx(&chip8, x, true);
                             break;
                         case 0x29:
-                            setIdxToChar(chip8.cpu, x);
+                            setIdxToChar(&chip8, x);
                             break;
                         case 0x33:
-                            setHeapIdxToRegDigits(chip8.cpu, x);
+                            setHeapIdxToRegDigits(&chip8, x);
                             break;
                         case 0x55:
-                            storeRegisters(chip8.cpu, x, true);
+                            storeRegisters(&chip8, x, true);
                             break;
                         case 0x65:
-                            loadMemory(chip8.cpu, x, true);
+                            loadMemory(&chip8, x, true);
                             break;
                         default:
                             printf("Error Unknown Instruction: 0x%x\n", opCode);
@@ -499,8 +488,8 @@ int main(int argc, char *argv[])
         }
         if (willHandleTimers) {
             handleSound();
-            if (chip8.cpu->delayT) { chip8.cpu->delayT--; }
-            if (chip8.cpu->soundT) { chip8.cpu->soundT--; }
+            if (chip8.ram->delayTimer) { chip8.ram->delayTimer--; }
+            if (chip8.ram->soundTimer) { chip8.ram->soundTimer--; }
         }
 
         draw(
