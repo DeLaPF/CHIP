@@ -22,6 +22,7 @@ typedef struct op {
     uint16_t nnn;
 }Op;
 
+Op peekOp(Cpu* cpu, RAM* ram);
 Op fetchOp(Cpu* cpu, RAM* ram);
 
 #endif

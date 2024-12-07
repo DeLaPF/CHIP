@@ -9,6 +9,7 @@ set(SOURCES
     src/main.c
 	src/constants.c
     src/cpu.c
+	src/display.c
 	src/instructions.c
     src/keyboard.c
     src/ram.c
