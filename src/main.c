@@ -8,6 +8,7 @@
 #include "constants.h"
 #include "cpu.h"
 #include "instructions.h"
+#include "memory_mapper.h"
 
 
 const float cycleThreshold = 1 / 700.0;
