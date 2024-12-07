@@ -2,9 +2,8 @@
 
 #include <stdlib.h>
 
-#include "raylib.h"
-
 #include "constants.h"
+#include "keyboard.h"
 
 
 void clearScreen(Chip8* chip8)
@@ -150,14 +149,14 @@ void setRegConstMaskRand(Chip8* chip8, uint8_t x, uint8_t nn)
 
 void skipIfKeyPressed(Chip8* chip8, uint8_t x)
 {
-    if (IsKeyDown(IND_TO_KEY[chip8->cpu->registers[x]])) {
+    if (isKeyDown(chip8->kbd, chip8->cpu->registers[x])) {
         chip8->cpu->pc += 2;
     }
 }
 
 void skipIfKeyNPressed(Chip8* chip8, uint8_t x)
 {
-    if (!IsKeyDown(IND_TO_KEY[chip8->cpu->registers[x]])) {
+    if (!isKeyDown(chip8->kbd, chip8->cpu->registers[x])) {
         chip8->cpu->pc += 2;
     }
 }
@@ -166,14 +165,10 @@ static int keyInd = -1;
 void waitForKeypress(Chip8* chip8, uint8_t x)
 {
     if (keyInd < 0) {
-        for (int i = 0; i <= 0xF; i++) {
-            if (IsKeyDown(IND_TO_KEY[i])) {
-                keyInd = i;
-            }
-        }
+        keyInd = getLowestKeyPressed(chip8->kbd);
     }
 
-    if (keyInd < 0 || IsKeyDown(IND_TO_KEY[keyInd])) {
+    if (keyInd < 0 || isKeyDown(chip8->kbd, keyInd)) {
         chip8->cpu->pc -= 2;
     } else {
         chip8->cpu->registers[x] = keyInd;

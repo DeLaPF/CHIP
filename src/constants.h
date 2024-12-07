@@ -15,6 +15,4 @@ extern const int FONT_BYTES;
 extern const int BYTES_PER_CHAR;
 extern const uint8_t FONT[80];
 
-extern const uint8_t IND_TO_KEY[16];
-
 #endif

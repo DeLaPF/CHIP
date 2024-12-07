@@ -288,10 +288,14 @@ int main(int argc, char *argv[])
     Display scr = {
         .pixelBuff={0},
     };
+    Keyboard kbd = {
+        .keyMap=0,
+    };
     Chip8 chip8 = {
         .cpu=&cpu,
         .ram=&ram,
         .scr=&scr,
+        .kbd=&kbd,
         .isPaused=false,
         .step=0,
     };
@@ -309,6 +313,7 @@ int main(int argc, char *argv[])
     // Main game loop
     while (!WindowShouldClose())  // Detect window close button or ESC key
     {
+        updateKeyMap(chip8.kbd);
         bool isPaused = chip8.isPaused && !chip8.step;
         // Handle time and determine intent to avoid getting out of sync
         // (may not actally be and issue?)

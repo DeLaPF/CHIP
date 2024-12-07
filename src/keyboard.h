@@ -1,6 +1,7 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 
@@ -9,5 +10,7 @@ typedef struct keyboard {
 }Keyboard;
 
 void updateKeyMap(Keyboard* kbd);
+bool isKeyDown(Keyboard* kbd, uint8_t ind);
+int getLowestKeyPressed(Keyboard* kbd);
 
 #endif
