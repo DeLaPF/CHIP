@@ -40,6 +40,7 @@ int main(int argc, char *argv[])
     // SetTargetFPS(60);
     double pCycleTime = GetTime();
     double pFrameTime = GetTime();
+    double pLoopTime = GetTime();
     double pTimerTime = GetTime();
     uint16_t pOpCode = 0;
 
@@ -48,51 +49,46 @@ int main(int argc, char *argv[])
     {
         updateKeyMap(chip8.kbd);
 
-        bool isPaused = chip8.isPaused && !chip8.step;
-        float delta = GetFrameTime();
+        double curTime = GetTime();
+        float delta = curTime - pLoopTime;
         Op curOp = peekOp(chip8.cpu, chip8.ram);
 
-        // Handle time and determine intent to avoid getting out of sync
-        // (may not actally be and issue?)
-        const double curTime = GetTime();
-        const bool willCycleCpu = (curTime - pCycleTime) >= cycleThreshold && !isPaused;
-        // const bool willCycleCpu = !isPaused;
-        const bool willDrawFrame = (curTime - pFrameTime) >= frameThreshold && !isPaused;
-        const bool willHandleTimers = (curTime - pTimerTime) >= timerThreshold && !isPaused;
-        if (willCycleCpu) { pCycleTime = curTime; }
-        if (willDrawFrame) { pFrameTime = curTime; }
-        if (willHandleTimers) { pTimerTime = curTime; }
+        if (!chip8.isPaused || chip8.step) {
+            if ((curTime - pCycleTime) >= cycleThreshold) {
+                // Fetch
+                Op op = fetchOp(chip8.cpu, chip8.ram);
+                // Decode
+                Instruction instruction = decode(op.nib, op.n, op.nn);
+                // Execute
+                if (!instruction) {
+                    printf("Error Unknown Instruction: 0x%x\n", op.code);
+                    printf("Prev OP: %x\n", pOpCode);
+                    chip8.isPaused = true;
+                } else {
+                    instruction(&chip8, op.x, op.y, op.n, op.nn, op.nnn);
+                }
 
-        // Handle intent
-        if (willCycleCpu) {
-            if (chip8.step) { chip8.step--; }
-
-            // Fetch
-            Op op = fetchOp(chip8.cpu, chip8.ram);
-
-            // Decode
-            Instruction instruction = decode(op.nib, op.n, op.nn);
-
-            // Execute
-            if (!instruction) {
-                printf("Error Unknown Instruction: 0x%x\n", op.code);
-                printf("Prev OP: %x\n", pOpCode);
-                chip8.isPaused = true;
-            } else {
-                instruction(&chip8, op.x, op.y, op.n, op.nn, op.nnn);
+                 pCycleTime = curTime;
             }
-        }
-        if (willDrawFrame) {
-            // TODO: update pixelBuff
-        }
-        if (willHandleTimers) {
-            handleSound();
-            if (chip8.ram->delayTimer) { chip8.ram->delayTimer--; }
-            if (chip8.ram->soundTimer) { chip8.ram->soundTimer--; }
+            if ((curTime - pFrameTime) >= frameThreshold) {
+                // TODO: update pixelBuff
+
+                pFrameTime = curTime;
+            }
+            if ((curTime - pTimerTime) >= timerThreshold) {
+                handleSound();
+
+                if (chip8.ram->delayTimer) { chip8.ram->delayTimer--; }
+                if (chip8.ram->soundTimer) { chip8.ram->soundTimer--; }
+                pTimerTime = curTime;
+            }
+
+            if (chip8.step) { chip8.step--; }
+            pOpCode = curOp.code;
         }
 
         draw(&chip8, curTime, pCycleTime, pFrameTime, delta, curOp.code, pOpCode);
-        pOpCode = curOp.code;
+        pLoopTime = curTime;
     }
 
     CloseWindow();
