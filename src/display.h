@@ -15,7 +15,8 @@ void draw(
     double prevCycleTime,
     double prevFrameTime,
     double deltaTime,
-    uint16_t opCode
+    uint16_t opCode,
+    uint16_t prevOpCode
 );
 
 #endif

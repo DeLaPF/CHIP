@@ -1,6 +1,7 @@
 #include "cpu.h"
 
-Op peekOp(Cpu* cpu, RAM* ram) {
+Op peekOp(Cpu* cpu, RAM* ram)
+{
     uint16_t code = ram->heap[cpu->pc] << 8;
     code |= ram->heap[cpu->pc+1];
 
@@ -16,7 +17,8 @@ Op peekOp(Cpu* cpu, RAM* ram) {
     return op;
 }
 
-Op fetchOp(Cpu* cpu, RAM* ram) {
+Op fetchOp(Cpu* cpu, RAM* ram)
+{
     Op op = peekOp(cpu, ram);
     cpu->pc += 2;
     return op;

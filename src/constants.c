@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include "constants.h"
 
 const int BUFF_WIDTH = 64;
 const int BUFF_HEIGHT = 32;

@@ -20,7 +20,8 @@ void draw(
     double prevCycleTime,
     double prevFrameTime,
     double deltaTime,
-    uint16_t opCode
+    uint16_t opCode,
+    uint16_t prevOpCode
 )
 {
     // TODO: find better solution
@@ -124,6 +125,7 @@ void draw(
             "sp:%x\n"
             "ret:%x\n"
             "OP: 0x%4x\n"
+            "Prev OP: 0x%4x\n"
             "Delay: %d\nSound: %d",
             chip_8->cpu->registers[0],
             chip_8->cpu->registers[1],
@@ -146,6 +148,7 @@ void draw(
             chip_8->cpu->sp,
             chip_8->cpu->sp ? chip_8->ram->stack[chip_8->cpu->sp-1] : 0x0,
             opCode,
+            prevOpCode,
             chip_8->ram->delayTimer,
             chip_8->ram->soundTimer
         );

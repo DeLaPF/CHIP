@@ -260,96 +260,96 @@ void updateBuffer(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uin
 Instruction decode(uint8_t opNib, uint8_t n, uint8_t nn)
 {
     switch (opNib) {
-        case 0x0:
-            switch (nn) {
-                case 0xE0:
-                    return clearScreen;
-                case 0xEE:
-                    return subRet;
-                default:
-                    return 0;
-            }
-        case 0x1:
-            return jump;
-        case 0x2:
-            return subCall;
-        case 0x3:
-            return regEqualConst;
-        case 0x4:
-            return regNEqualConst;
-        case 0x5:
-            return regEqualReg;
-        case 0x6:
-            return setRegToConst;
-        case 0x7:
-            return addConstToReg;
-        case 0x8:
-            switch (n) {
-                case 0x0:
-                    return setRegToReg;
-                case 0x1:
-                    return setRegORReg;
-                case 0x2:
-                    return setRegANDReg;
-                case 0x3:
-                    return setRegXORReg;
-                case 0x4:
-                    return addRegToReg;
-                case 0x5:
-                    return setRegSubYFromX;
-                case 0x6:
-                    return rightShiftReg;
-                case 0x7:
-                    return setRegSubXFromY;
-                case 0xE:
-                    return leftShiftReg;
-                default:
-                    return 0;
-            }
-        case 0x9:
-            return regNEqualReg;
-        case 0xA:
-            return setIdx;
-        case 0xB:
-            return jumpConstPlusReg;
-        case 0xC:
-            return setRegConstMaskRand;
-        case 0xD:
-            return updateBuffer;
-        case 0xE:
-            switch(nn) {
-                case 0x9E:
-                    return skipIfKeyPressed;
-                case 0xA1:
-                    return skipIfKeyNPressed;
-                default:
-                    return 0;
-            };
-        case 0xF:
-            switch(nn) {
-                case 0x07:
-                    return setRegToDelayT;
-                case 0x0A:
-                    return waitForKeypress;
-                case 0x15:
-                    return setDelayTToReg;
-                case 0x18:
-                    return setSoundTToReg;
-                case 0x1E:
-                    return addRegToIdx;
-                case 0x29:
-                    return setIdxToChar;
-                case 0x33:
-                    return setHeapIdxToRegDigits;
-                case 0x55:
-                    return storeRegisters;
-                case 0x65:
-                    return loadMemory;
-                default:
-                    return 0;
-            };
+    case 0x0:
+        switch (nn) {
+        case 0xE0:
+            return clearScreen;
+        case 0xEE:
+            return subRet;
         default:
-            // printf("Error Unknown Instruction (Very Bad): 0x%x\n", opCode);
             return 0;
+        }
+    case 0x1:
+        return jump;
+    case 0x2:
+        return subCall;
+    case 0x3:
+        return regEqualConst;
+    case 0x4:
+        return regNEqualConst;
+    case 0x5:
+        return regEqualReg;
+    case 0x6:
+        return setRegToConst;
+    case 0x7:
+        return addConstToReg;
+    case 0x8:
+        switch (n) {
+        case 0x0:
+            return setRegToReg;
+        case 0x1:
+            return setRegORReg;
+        case 0x2:
+            return setRegANDReg;
+        case 0x3:
+            return setRegXORReg;
+        case 0x4:
+            return addRegToReg;
+        case 0x5:
+            return setRegSubYFromX;
+        case 0x6:
+            return rightShiftReg;
+        case 0x7:
+            return setRegSubXFromY;
+        case 0xE:
+            return leftShiftReg;
+        default:
+            return 0;
+        }
+    case 0x9:
+        return regNEqualReg;
+    case 0xA:
+        return setIdx;
+    case 0xB:
+        return jumpConstPlusReg;
+    case 0xC:
+        return setRegConstMaskRand;
+    case 0xD:
+        return updateBuffer;
+    case 0xE:
+        switch(nn) {
+        case 0x9E:
+            return skipIfKeyPressed;
+        case 0xA1:
+            return skipIfKeyNPressed;
+        default:
+            return 0;
+        };
+    case 0xF:
+        switch(nn) {
+        case 0x07:
+            return setRegToDelayT;
+        case 0x0A:
+            return waitForKeypress;
+        case 0x15:
+            return setDelayTToReg;
+        case 0x18:
+            return setSoundTToReg;
+        case 0x1E:
+            return addRegToIdx;
+        case 0x29:
+            return setIdxToChar;
+        case 0x33:
+            return setHeapIdxToRegDigits;
+        case 0x55:
+            return storeRegisters;
+        case 0x65:
+            return loadMemory;
+        default:
+            return 0;
+        };
+    default:
+        // printf("Error Unknown Instruction (Very Bad): 0x%x\n", opCode);
+        return 0;
     };
 }

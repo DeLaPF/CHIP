@@ -14,7 +14,8 @@ static const uint8_t IND_TO_KEY[16] = {
     KEY_V
 };
 
-void updateKeyMap(Keyboard* kbd) {
+void updateKeyMap(Keyboard* kbd)
+{
     kbd->keyMap = 0;
     for (int i = 0; i <= 0xF; i++) {
         if (IsKeyDown(IND_TO_KEY[i])) {
@@ -23,11 +24,13 @@ void updateKeyMap(Keyboard* kbd) {
     }
 }
 
-bool isKeyDown(Keyboard* kbd, uint8_t ind) {
+bool isKeyDown(Keyboard* kbd, uint8_t ind)
+{
     return kbd->keyMap & (1 << ind);
 }
 
-int getLowestKeyPressed(Keyboard* kbd) {
+int getLowestKeyPressed(Keyboard* kbd)
+{
     uint16_t keyMap = kbd->keyMap;
     uint8_t ind = 0;
     while (keyMap) {

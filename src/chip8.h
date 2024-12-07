@@ -9,7 +9,7 @@
 #include "display.h"
 #include "keyboard.h"
 
-typedef struct chip_8 {
+typedef struct chip8 {
     // Hardware
     Cpu* cpu;
     RAM* ram;
@@ -27,5 +27,8 @@ typedef struct chip_8 {
     bool carry;
     bool increment;
 }Chip8;
+
+Chip8 initChip8();
+void setup(Chip8* chip8, const char* romPath);
 
 #endif
