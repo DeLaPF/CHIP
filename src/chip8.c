@@ -43,7 +43,7 @@ Chip8 initChip8()
         .carry=false,
         .increment=false,
         .clipping=true,
-        .dispWait=true,
+        .dispWait=false,
     };
     // CHIP8
     // .resetVF=true,
