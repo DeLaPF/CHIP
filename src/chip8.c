@@ -28,6 +28,7 @@ Chip8 initChip8()
     Keyboard kbd = {
         .keyMap=0,
     };
+    // TODO: add method for setting quirks at runtime (config file or args?)
     Chip8 chip8 = {
         .cpu=cpu,
         .ram=ram,
@@ -37,12 +38,13 @@ Chip8 initChip8()
         .flagRegisters={0},
         .isPaused=false,
         .step=0,
-        .resetVF=true,
+        .resetVF=false,
         .fromY=false,
         .force0=false,
-        .carry=true,
-        .increment=true,
+        .carry=false,
+        .increment=false,
         .dispWait=false,
+        .clipping=true,
     };
 
     return chip8;

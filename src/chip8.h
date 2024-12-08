@@ -31,6 +31,7 @@ typedef struct chip8 {
     bool carry;
     bool increment;
     bool dispWait;
+    bool clipping;
 }Chip8;
 
 Chip8 initChip8();

@@ -245,21 +245,30 @@ void updateBuffer(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uin
 
     for (int yOff = 0; yOff < n; yOff++) {
         int py = vy + yOff;
-        if (py < 0 || py >= chip8->scr.height) { continue; }
+        if (chip8->clipping) {
+            if (py < 0 || py >= chip8->scr.height) { continue; }
+        } else {
+            py %= chip8->scr.height;
+        }
 
         uint16_t spriteRow = chip8->ram.heap[chip8->cpu.idx+yOff];
         uint16_t rowMask = 0x80;
         uint8_t rowWidth = 8;
-
         if (hiResSprite) {
-            spriteRow = chip8->ram.heap[chip8->cpu.idx+yOff];
+            spriteRow = chip8->ram.heap[chip8->cpu.idx+(yOff*2)] << 8;
+            spriteRow |= chip8->ram.heap[chip8->cpu.idx+(yOff*2)+1];
             rowMask = 0x8000;
             rowWidth = 16;
         }
 
         for (int xOff = 0; xOff < rowWidth; xOff++) {
             int px = vx + xOff;
-            if (px < 0 || px >= chip8->scr.width) { continue; }
+            if (chip8->clipping) {
+                if (px < 0 || px >= chip8->scr.width) { continue; }
+            } else {
+                px %= chip8->scr.width;
+            }
+
             int pInd = py*chip8->scr.width+px;
             if (spriteRow&rowMask) {
                 if (chip8->scr.pixelBuff[pInd]) {
