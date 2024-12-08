@@ -47,16 +47,16 @@ int main(int argc, char *argv[])
     // Main game loop
     while (!WindowShouldClose())  // Detect window close button or ESC key
     {
-        updateKeyMap(chip8.kbd);
+        updateKeyMap(&chip8.kbd);
 
         double curTime = GetTime();
         float delta = curTime - pLoopTime;
-        Op curOp = peekOp(chip8.cpu, chip8.ram);
+        Op curOp = peekOp(&chip8.cpu, &chip8.ram);
 
         if (!chip8.isPaused || chip8.step) {
             if ((curTime - pCycleTime) >= cycleThreshold) {
                 // Fetch
-                Op op = fetchOp(chip8.cpu, chip8.ram);
+                Op op = fetchOp(&chip8.cpu, &chip8.ram);
                 // Decode
                 Instruction instruction = decode(op.nib, op.n, op.nn);
                 // Execute
@@ -78,8 +78,8 @@ int main(int argc, char *argv[])
             if ((curTime - pTimerTime) >= timerThreshold) {
                 handleSound();
 
-                if (chip8.ram->delayTimer) { chip8.ram->delayTimer--; }
-                if (chip8.ram->soundTimer) { chip8.ram->soundTimer--; }
+                if (chip8.ram.delayTimer) { chip8.ram.delayTimer--; }
+                if (chip8.ram.soundTimer) { chip8.ram.soundTimer--; }
                 pTimerTime = curTime;
             }
 

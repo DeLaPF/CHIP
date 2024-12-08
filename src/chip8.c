@@ -26,10 +26,10 @@ Chip8 initChip8()
         .keyMap=0,
     };
     Chip8 chip8 = {
-        .cpu=&cpu,
-        .ram=&ram,
-        .scr=&scr,
-        .kbd=&kbd,
+        .cpu=cpu,
+        .ram=ram,
+        .scr=scr,
+        .kbd=kbd,
         .isPaused=false,
         .step=0,
         .resetVF=true,
@@ -45,10 +45,10 @@ Chip8 initChip8()
 void setup(Chip8* chip8, const char* romPath)
 {
     printf("Loading Font...\n");
-    loadFont(chip8->ram);
+    loadFont(&chip8->ram);
 
     printf("Loading ROM %s...\n", romPath);
-    loadROM(chip8->ram, romPath);
+    loadROM(&chip8->ram, romPath);
 
-    chip8->cpu->pc = PROG_START;
+    chip8->cpu.pc = PROG_START;
 }

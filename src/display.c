@@ -50,7 +50,7 @@ void draw(
         };
         for (int y = 0; y < BUFF_HEIGHT; y++) {
             for (int x = 0; x < BUFF_WIDTH; x++) {
-                if (chip_8->scr->pixelBuff[y*BUFF_WIDTH+x]) {
+                if (chip_8->scr.pixelBuff[y*BUFF_WIDTH+x]) {
                     DrawRectangle(
                         pixelBuffOrigin.x+(x*drawScale),
                         pixelBuffOrigin.y+(y*drawScale),
@@ -127,30 +127,30 @@ void draw(
             "OP: 0x%4x\n"
             "Prev OP: 0x%4x\n"
             "Delay: %d\nSound: %d",
-            chip_8->cpu->registers[0],
-            chip_8->cpu->registers[1],
-            chip_8->cpu->registers[2],
-            chip_8->cpu->registers[3],
-            chip_8->cpu->registers[4],
-            chip_8->cpu->registers[5],
-            chip_8->cpu->registers[6],
-            chip_8->cpu->registers[7],
-            chip_8->cpu->registers[8],
-            chip_8->cpu->registers[9],
-            chip_8->cpu->registers[10],
-            chip_8->cpu->registers[11],
-            chip_8->cpu->registers[12],
-            chip_8->cpu->registers[13],
-            chip_8->cpu->registers[14],
-            chip_8->cpu->registers[15],
-            chip_8->cpu->idx,
-            chip_8->cpu->pc,
-            chip_8->cpu->sp,
-            chip_8->cpu->sp ? chip_8->ram->stack[chip_8->cpu->sp-1] : 0x0,
+            chip_8->cpu.registers[0],
+            chip_8->cpu.registers[1],
+            chip_8->cpu.registers[2],
+            chip_8->cpu.registers[3],
+            chip_8->cpu.registers[4],
+            chip_8->cpu.registers[5],
+            chip_8->cpu.registers[6],
+            chip_8->cpu.registers[7],
+            chip_8->cpu.registers[8],
+            chip_8->cpu.registers[9],
+            chip_8->cpu.registers[10],
+            chip_8->cpu.registers[11],
+            chip_8->cpu.registers[12],
+            chip_8->cpu.registers[13],
+            chip_8->cpu.registers[14],
+            chip_8->cpu.registers[15],
+            chip_8->cpu.idx,
+            chip_8->cpu.pc,
+            chip_8->cpu.sp,
+            chip_8->cpu.sp ? chip_8->ram.stack[chip_8->cpu.sp-1] : 0x0,
             opCode,
             prevOpCode,
-            chip_8->ram->delayTimer,
-            chip_8->ram->soundTimer
+            chip_8->ram.delayTimer,
+            chip_8->ram.soundTimer
         );
         DrawText(
             buff,

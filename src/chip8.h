@@ -11,10 +11,10 @@
 
 typedef struct chip8 {
     // Hardware
-    Cpu* cpu;
-    RAM* ram;
-    Display* scr;
-    Keyboard* kbd;
+    Cpu cpu;
+    RAM ram;
+    Display scr;
+    Keyboard kbd;
 
     // Debug
     bool isPaused;
