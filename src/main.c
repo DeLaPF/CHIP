@@ -54,7 +54,11 @@ int main(int argc, char *argv[])
         Op curOp = peekOp(&chip8.cpu, &chip8.ram);
 
         if (!chip8.isPaused || chip8.step) {
-            if ((curTime - pCycleTime) >= cycleThreshold) {
+            // TODO: I think dispWait should just mean wait for screen refresh
+            // before continuing to next instruction
+            // my implementation is slow enough that this is somewhat true
+            // so I can SUPERCHIP modern now, but not consistently
+            if ((curTime - pCycleTime) >= cycleThreshold || !chip8.dispWait) {
                 // Fetch
                 Op op = fetchOp(&chip8.cpu, &chip8.ram);
                 // Decode
@@ -71,7 +75,7 @@ int main(int argc, char *argv[])
                  pCycleTime = curTime;
             }
             if ((curTime - pFrameTime) >= frameThreshold) {
-                updatePixelBuff(&chip8.scr);
+                // TODO: Is this needed?
 
                 pFrameTime = curTime;
             }

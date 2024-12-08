@@ -21,7 +21,6 @@ Chip8 initChip8()
     };
     Display scr = {
         .pixelBuff={0},
-        .nextPixelBuff={0},
         .width=CHIP8_BUFF_WIDTH,
         .height=CHIP8_BUFF_HEIGHT,
     };
@@ -43,9 +42,35 @@ Chip8 initChip8()
         .force0=false,
         .carry=false,
         .increment=false,
-        .dispWait=false,
         .clipping=true,
+        .dispWait=false,
     };
+    // CHIP8
+    // .resetVF=true,
+    // .fromY=true,
+    // .force0=true,
+    // .carry=false,
+    // .increment=true,
+    // .clipping=true,
+    // .dispWait=true,
+
+    // SUPERCHIP (legacy)
+    // .resetVF=false,
+    // .fromY=false,
+    // .force0=false,
+    // .carry=false,
+    // .increment=false,
+    // .clipping=true,
+    // .dispWait=true,
+
+    // SUPERCHIP (modern)
+    // .resetVF=false,
+    // .fromY=false,
+    // .force0=false,
+    // .carry=false,
+    // .increment=false,
+    // .clipping=true,
+    // .dispWait=false,
 
     return chip8;
 }
