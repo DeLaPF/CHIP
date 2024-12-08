@@ -44,8 +44,7 @@ int main(int argc, char *argv[])
     uint16_t pOpCode = 0;
 
     // Main game loop
-    while (!WindowShouldClose())  // Detect window close button or ESC key
-    {
+    while (!WindowShouldClose()) {
         updateKeyMap(&chip8.kbd);
 
         double curTime = GetTime();
