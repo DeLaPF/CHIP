@@ -14,7 +14,53 @@ static const int DEBUG_INFO_HEIGHT = 54;
 static const int DEBUG_BUTTONS_WIDTH = 66;
 static const int DEBUG_BUTTONS_HEIGHT = 19;
 
-void draw(
+void draw(void* chip8, float delta)
+{
+    // TODO: find better solution
+    // To avoid circular dependency issue
+    Chip8* chip_8 = (Chip8*)chip8;
+
+    const double drawScale = 12.0;
+    const double buffPixelSize = chip_8->hiRes ? drawScale/2 : drawScale;
+    const double padding = PADDING*drawScale;
+    BeginDrawing();
+        ClearBackground(GRAY);
+
+        // Draw Buff Frame
+        const Vector2 buffFrameOrigin = { padding, padding };
+        const double buffFrameWidth = (CHIP8_BUFF_WIDTH+2)*drawScale;
+        const double buffFrameHeight = (CHIP8_BUFF_HEIGHT+2)*drawScale;
+        DrawRectangle(
+            buffFrameOrigin.x, buffFrameOrigin.y,
+            buffFrameWidth, buffFrameHeight,
+            RAYWHITE
+        );
+        const Vector2 pixelBuffOrigin = {
+            buffFrameOrigin.x+padding,
+            buffFrameOrigin.y+padding
+        };
+        for (int y = 0; y < chip_8->scr.height; y++) {
+            for (int x = 0; x < chip_8->scr.width; x++) {
+                if (chip_8->scr.pixelBuff[y*chip_8->scr.width+x]) {
+                    DrawRectangle(
+                        pixelBuffOrigin.x+(x*buffPixelSize),
+                        pixelBuffOrigin.y+(y*buffPixelSize),
+                        buffPixelSize,
+                        buffPixelSize,
+                        BLACK
+                    );
+                }
+            }
+        }
+
+        // Draw mspt
+        char deltaBuff[50];
+        sprintf(deltaBuff, "Time: %.8lf", delta);
+        DrawText(deltaBuff, padding, padding, 20, BLACK);
+    EndDrawing();
+}
+
+void draw_debug(
     void* chip8,
     double curTime,
     double prevCycleTime,

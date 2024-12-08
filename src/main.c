@@ -58,7 +58,8 @@ int main(int argc, char *argv[])
             // before continuing to next instruction
             // my implementation is slow enough that this is somewhat true
             // so I can SUPERCHIP modern now, but not consistently
-            if ((curTime - pCycleTime) >= cycleThreshold || !chip8.dispWait) {
+            bool wait = chip8.dispWait && (curTime - pFrameTime) >= frameThreshold;
+            if ((curTime - pCycleTime) >= cycleThreshold && !wait) {
                 // Fetch
                 Op op = fetchOp(&chip8.cpu, &chip8.ram);
                 // Decode
@@ -72,12 +73,8 @@ int main(int argc, char *argv[])
                     instruction(&chip8, op.x, op.y, op.n, op.nn, op.nnn);
                 }
 
-                 pCycleTime = curTime;
-            }
-            if ((curTime - pFrameTime) >= frameThreshold) {
-                // TODO: Is this needed?
-
-                pFrameTime = curTime;
+                if (op.nib == 0xD) { pFrameTime = curTime; }
+                pCycleTime = curTime;
             }
             if ((curTime - pTimerTime) >= timerThreshold) {
                 handleSound();
@@ -91,7 +88,8 @@ int main(int argc, char *argv[])
             pOpCode = curOp.code;
         }
 
-        draw(&chip8, curTime, pCycleTime, pFrameTime, delta, curOp.code, pOpCode);
+        draw(&chip8, delta);
+        // draw_debug(&chip8, curTime, pCycleTime, pFrameTime, delta, curOp.code, pOpCode);
         pLoopTime = curTime;
     }
 

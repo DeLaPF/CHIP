@@ -12,7 +12,8 @@ typedef struct display {
 }Display;
 
 void updatePixelBuff(Display* scr);
-void draw(
+void draw(void* chip8, float delta);
+void draw_debug(
     void* chip8,
     double curTime,
     double prevCycleTime,
