@@ -395,6 +395,8 @@ Instruction decode(uint8_t opNib, uint8_t n, uint8_t nn)
             return addRegToIdx;
         case 0x29:
             return setIdxToChar;
+        case 0x30:
+            return setIdxToHiChar;
         case 0x33:
             return setHeapIdxToRegDigits;
         case 0x55:
