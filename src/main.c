@@ -66,11 +66,11 @@ int main(int argc, char *argv[])
                 Instruction instruction = decode(&op);
                 // Execute
                 if (!instruction) {
-                    printf("Error Unknown Instruction: 0x%x\n", op.code);
-                    printf("Prev OP: %x\n", pOpCode);
+                    printf("Error Unknown Instruction: 0x%04x\n", op.code);
+                    printf("Prev OP: 0x%04x\n", pOpCode);
                     chip8.isPaused = true;
                 } else {
-                    instruction(&chip8, op.x, op.y, op.n, op.nn, op.nnn);
+                    instruction(&chip8, &op);
                 }
 
                 if (op.nib == 0xD) { pFrameTime = curTime; }
