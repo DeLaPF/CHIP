@@ -238,6 +238,7 @@ void updateBuffer(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uin
 {
     uint8_t vx = chip8->cpu.registers[x]%chip8->scr.width;
     uint8_t vy = chip8->cpu.registers[y]%chip8->scr.height;
+    chip8->cpu.registers[VF] = 0;
 
     // SuperChip
     bool hiResSprite = chip8->hiRes && n == 0;
