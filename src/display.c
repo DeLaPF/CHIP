@@ -35,7 +35,8 @@ void draw(
     // To avoid circular dependency issue
     Chip8* chip_8 = (Chip8*)chip8;
 
-    const double drawScale = chip_8->scr.width/8.0;
+    const double drawScale = 8.0;
+    const double buffPixelSize = chip_8->hiRes ? drawScale/2 : drawScale;
     const double padding = PADDING*drawScale;
     BeginDrawing();
         ClearBackground(GRAY);
@@ -59,10 +60,10 @@ void draw(
             for (int x = 0; x < chip_8->scr.width; x++) {
                 if (chip_8->scr.pixelBuff[y*chip_8->scr.width+x]) {
                     DrawRectangle(
-                        pixelBuffOrigin.x+(x*drawScale),
-                        pixelBuffOrigin.y+(y*drawScale),
-                        drawScale,
-                        drawScale,
+                        pixelBuffOrigin.x+(x*buffPixelSize),
+                        pixelBuffOrigin.y+(y*buffPixelSize),
+                        buffPixelSize,
+                        buffPixelSize,
                         BLACK
                     );
                 }
