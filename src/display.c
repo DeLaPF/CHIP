@@ -14,6 +14,13 @@ static const int DEBUG_INFO_HEIGHT = 54;
 static const int DEBUG_BUTTONS_WIDTH = 66;
 static const int DEBUG_BUTTONS_HEIGHT = 19;
 
+void updatePixelBuff(Display* scr)
+{
+    for (int i = 0; i < BUFF_WIDTH*BUFF_HEIGHT; i++) {
+        scr->pixelBuff[i] = scr->nextPixelBuff[i];
+    }
+}
+
 void draw(
     void* chip8,
     double curTime,

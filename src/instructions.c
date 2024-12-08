@@ -9,7 +9,10 @@
 void clearScreen(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn)
 {
     for (int i = 0; i < BUFF_WIDTH*BUFF_HEIGHT; i++) {
-        chip8->scr.pixelBuff[i] = 0;
+        chip8->scr.nextPixelBuff[i] = 0;
+        if (!chip8->dispWait) {
+            chip8->scr.pixelBuff[i] = chip8->scr.nextPixelBuff[i];
+        }
     }
 }
 
@@ -250,7 +253,10 @@ void updateBuffer(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uin
                     chip8->cpu.registers[VF] = 1;
                 }
 
-                chip8->scr.pixelBuff[pInd] ^= 1;
+                chip8->scr.nextPixelBuff[pInd] = chip8->scr.pixelBuff[pInd]^1;
+                if (!chip8->dispWait) {
+                    chip8->scr.pixelBuff[pInd] = chip8->scr.nextPixelBuff[pInd];
+                }
             }
             byteMask >>= 1;
         }

@@ -37,6 +37,7 @@ Chip8 initChip8()
         .force0=false,
         .carry=true,
         .increment=true,
+        .dispWait=false,
     };
 
     return chip8;

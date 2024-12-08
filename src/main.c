@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
                  pCycleTime = curTime;
             }
             if ((curTime - pFrameTime) >= frameThreshold) {
-                // TODO: update pixelBuff
+                updatePixelBuff(&chip8.scr);
 
                 pFrameTime = curTime;
             }

@@ -8,8 +8,8 @@
 typedef struct cpu {
     uint8_t registers[16];
     uint16_t idx;
-    uint8_t sp;
     uint16_t pc;
+    uint8_t sp;
 }Cpu;
 
 typedef struct op {
