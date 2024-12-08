@@ -1,4 +1,9 @@
-bin/
+Debug/
+Profile/
+Release/
+
+gmon.out
+prof.png
 
 CMakeFiles/
 CMakeCache.txt
