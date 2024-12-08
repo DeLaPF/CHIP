@@ -218,11 +218,6 @@ void setHeapIdxToRegDigits(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_
     chip8->ram.heap[chip8->cpu.idx] = val%10;
 }
 
-void setIdxToHiChar(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn)
-{
-    chip8->cpu.idx = (chip8->cpu.registers[x]*HI_BYTES_PER_CHAR)+HI_FONT_START;
-}
-
 void storeRegisters(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn)
 {
     for (int i = 0; i <= x; i++) {
@@ -293,6 +288,11 @@ void hiRes(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t n
     chip8->hiRes = true;
     chip8->scr.width = SUPER_CHIP_BUFF_WIDTH;
     chip8->scr.height = SUPER_CHIP_BUFF_HEIGHT;
+}
+
+void setIdxToHiChar(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn)
+{
+    chip8->cpu.idx = (chip8->cpu.registers[x]*HI_BYTES_PER_CHAR)+HI_FONT_START;
 }
 
 void saveToFlags(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn)

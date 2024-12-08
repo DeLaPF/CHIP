@@ -20,6 +20,6 @@ extern const uint8_t LO_FONT[80];
 extern const int HI_FONT_START;
 extern const int HI_FONT_BYTES;
 extern const int HI_BYTES_PER_CHAR;
-extern const uint16_t HI_FONT[80];
+extern const uint8_t HI_FONT[160];
 
 #endif
