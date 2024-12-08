@@ -7,9 +7,9 @@
 
 #include "raylib.h"
 
-const float cycleThreshold = 1 / 700.0;
-const float frameThreshold = 1 / 60.0;
-const float timerThreshold = 1 / 60.0;
+const double cycleThreshold = 1 / 700.0;
+const double frameThreshold = 1 / 60.0;
+const double timerThreshold = 1 / 60.0;
 
 void handleSound()
 {
@@ -37,11 +37,10 @@ int main(int argc, char *argv[])
     setup(&chip8, argv[1]);
     printf("Setup Complete!\n");
 
-    // SetTargetFPS(60);
-    double pCycleTime = GetTime();
-    double pFrameTime = GetTime();
-    double pLoopTime = GetTime();
-    double pTimerTime = GetTime();
+    double pCycleTime = -1.0;
+    double pFrameTime = -1.0;
+    double pLoopTime = -1.0;
+    double pTimerTime = -1.0;
     uint16_t pOpCode = 0;
 
     // Main game loop
@@ -54,11 +53,7 @@ int main(int argc, char *argv[])
         Op curOp = peekOp(&chip8.cpu, &chip8.ram);
 
         if (!chip8.isPaused || chip8.step) {
-            // TODO: I think dispWait should just mean wait for screen refresh
-            // before continuing to next instruction
-            // my implementation is slow enough that this is somewhat true
-            // so I can SUPERCHIP modern now, but not consistently
-            bool wait = chip8.dispWait && (curTime - pFrameTime) >= frameThreshold;
+            bool wait = chip8.dispWait && (curTime - pFrameTime) < frameThreshold;
             if ((curTime - pCycleTime) >= cycleThreshold && !wait) {
                 // Fetch
                 Op op = fetchOp(&chip8.cpu, &chip8.ram);
