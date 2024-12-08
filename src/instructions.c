@@ -280,6 +280,52 @@ void updateBuffer(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uin
     }
 }
 
+void scrollDN(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn)
+{
+    int shift = n;
+    for (int py = chip8->scr.height-1; py >= 0; py--) {
+        for (int px = 0; px < chip8->scr.width; px++) {
+            int pInd = py*chip8->scr.width+px;
+            if (py > shift) {
+                int pShiftInd = (py-shift)*chip8->scr.width+px;
+                chip8->scr.pixelBuff[pInd] = chip8->scr.pixelBuff[pShiftInd];
+            } else {
+                chip8->scr.pixelBuff[pInd] = 0;
+            }
+        }
+    }
+}
+
+void scrollR(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn)
+{
+    int shift = 4;
+    for (int py = 0; py < chip8->scr.height; py++) {
+        for (int px = chip8->scr.width-1; px >= 0; px--) {
+            int pInd = py*chip8->scr.width+px;
+            if (px > shift) {
+                chip8->scr.pixelBuff[pInd] = chip8->scr.pixelBuff[pInd-shift];
+            } else {
+                chip8->scr.pixelBuff[pInd] = 0;
+            }
+        }
+    }
+}
+
+void scrollL(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn)
+{
+    int shift = 4;
+    for (int py = 0; py < chip8->scr.height; py++) {
+        for (int px = 0; px < chip8->scr.width; px++) {
+            int pInd = py*chip8->scr.width+px;
+            if (px < chip8->scr.width-shift) {
+                chip8->scr.pixelBuff[pInd] = chip8->scr.pixelBuff[pInd+shift];
+            } else {
+                chip8->scr.pixelBuff[pInd] = 0;
+            }
+        }
+    }
+}
+
 void loRes(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn)
 {
     chip8->hiRes = false;
@@ -313,15 +359,22 @@ void loadFromFlags(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, ui
     }
 }
 
-Instruction decode(uint8_t opNib, uint8_t n, uint8_t nn)
+Instruction decode(Op* op)
 {
-    switch (opNib) {
+    switch (op->nib) {
     case 0x0:
-        switch (nn) {
+        if (op->y == 0xC) {
+            return scrollDN;
+        }
+        switch (op->nn) {
         case 0xE0:
             return clearScreen;
         case 0xEE:
             return subRet;
+        case 0xFB:
+            return scrollR;
+        case 0xFC:
+            return scrollL;
         case 0xFE:
             return loRes;
         case 0xFF:
@@ -344,7 +397,7 @@ Instruction decode(uint8_t opNib, uint8_t n, uint8_t nn)
     case 0x7:
         return addConstToReg;
     case 0x8:
-        switch (n) {
+        switch (op->n) {
         case 0x0:
             return setRegToReg;
         case 0x1:
@@ -377,7 +430,7 @@ Instruction decode(uint8_t opNib, uint8_t n, uint8_t nn)
     case 0xD:
         return updateBuffer;
     case 0xE:
-        switch(nn) {
+        switch(op->nn) {
         case 0x9E:
             return skipIfKeyPressed;
         case 0xA1:
@@ -386,7 +439,7 @@ Instruction decode(uint8_t opNib, uint8_t n, uint8_t nn)
             return 0;
         };
     case 0xF:
-        switch(nn) {
+        switch(op->nn) {
         case 0x07:
             return setRegToDelayT;
         case 0x0A:

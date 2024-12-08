@@ -4,7 +4,8 @@
 #include "chip8.h"
 
 typedef void (*Instruction)(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn);
-Instruction decode(uint8_t opNib, uint8_t n, uint8_t nn);
+Instruction decode(Op* op);
+// TODO: change definitions for all instructions to use Op*
 
 // Chip8
 void clearScreen(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn);     // 00E0 (clear screen)
@@ -43,6 +44,9 @@ void loadMemory(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint1
 void updateBuffer(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn); // DXYN (display/draw)
 
 // SuperChip
+void scrollDN(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn); // 00CN (scroll down by n px)
+void scrollR(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn); // 00FB (scroll right by 4 px)
+void scrollL(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn); // 00FC (scroll left by 4 px)
 void loRes(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn); // 00FE (low res mode (disable hi res))
 void hiRes(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn); // 00FF (high res mode)
 void setIdxToHiChar(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn); // FX30 (set idx to heap location of hi res char in vx)

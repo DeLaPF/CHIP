@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
                 // Fetch
                 Op op = fetchOp(&chip8.cpu, &chip8.ram);
                 // Decode
-                Instruction instruction = decode(op.nib, op.n, op.nn);
+                Instruction instruction = decode(&op);
                 // Execute
                 if (!instruction) {
                     printf("Error Unknown Instruction: 0x%x\n", op.code);
