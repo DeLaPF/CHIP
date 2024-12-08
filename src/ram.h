@@ -10,7 +10,8 @@ typedef struct ram {
     uint8_t heap[4096];
 }RAM;
 
-void loadFont(RAM* ram);
+void loadLoFont(RAM* ram);
+void loadHiFont(RAM* ram);
 void loadROM(RAM* ram, const char* romPath);
 
 #endif

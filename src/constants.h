@@ -3,16 +3,23 @@
 
 #include <stdint.h>
 
-extern const int BUFF_WIDTH;
-extern const int BUFF_HEIGHT;
+extern const int CHIP8_BUFF_WIDTH;
+extern const int CHIP8_BUFF_HEIGHT;
+extern const int SUPER_CHIP_BUFF_WIDTH;
+extern const int SUPER_CHIP_BUFF_HEIGHT;
 
 extern const int PROG_START;
 extern const int VF;
 
 
-extern const int FONT_START;
-extern const int FONT_BYTES;
-extern const int BYTES_PER_CHAR;
-extern const uint8_t FONT[80];
+extern const int LO_FONT_START;
+extern const int LO_FONT_BYTES;
+extern const int LO_BYTES_PER_CHAR;
+extern const uint8_t LO_FONT[80];
+
+extern const int HI_FONT_START;
+extern const int HI_FONT_BYTES;
+extern const int HI_BYTES_PER_CHAR;
+extern const uint16_t HI_FONT[];
 
 #endif

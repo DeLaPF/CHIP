@@ -16,6 +16,10 @@ typedef struct chip8 {
     Display scr;
     Keyboard kbd;
 
+    // SuperChip
+    bool hiRes;
+    uint8_t flagRegisters[16];
+
     // Debug
     bool isPaused;
     uint8_t step;

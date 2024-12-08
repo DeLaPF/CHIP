@@ -8,7 +8,7 @@
 
 void clearScreen(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn)
 {
-    for (int i = 0; i < BUFF_WIDTH*BUFF_HEIGHT; i++) {
+    for (int i = 0; i < chip8->scr.width*chip8->scr.height; i++) {
         chip8->scr.nextPixelBuff[i] = 0;
         if (!chip8->dispWait) {
             chip8->scr.pixelBuff[i] = chip8->scr.nextPixelBuff[i];
@@ -205,7 +205,7 @@ void addRegToIdx(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint
 
 void setIdxToChar(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn)
 {
-    chip8->cpu.idx = (chip8->cpu.registers[x]*BYTES_PER_CHAR)+FONT_START;
+    chip8->cpu.idx = (chip8->cpu.registers[x]*LO_BYTES_PER_CHAR)+LO_FONT_START;
 }
 
 void setHeapIdxToRegDigits(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn)
@@ -216,6 +216,11 @@ void setHeapIdxToRegDigits(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_
     chip8->ram.heap[chip8->cpu.idx+1] = val%10;
     val /= 10;
     chip8->ram.heap[chip8->cpu.idx] = val%10;
+}
+
+void setIdxToHiChar(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn)
+{
+    chip8->cpu.idx = (chip8->cpu.registers[x]*HI_BYTES_PER_CHAR)+HI_FONT_START;
 }
 
 void storeRegisters(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn)
@@ -236,19 +241,32 @@ void loadMemory(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint1
 
 void updateBuffer(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn)
 {
-    uint8_t vx = chip8->cpu.registers[x]%BUFF_WIDTH;
-    uint8_t vy = chip8->cpu.registers[y]%BUFF_HEIGHT;
+    uint8_t vx = chip8->cpu.registers[x]%chip8->scr.width;
+    uint8_t vy = chip8->cpu.registers[y]%chip8->scr.height;
+
+    // SuperChip
+    bool hiResSprite = chip8->hiRes && n == 0;
+    if (hiResSprite) { n = 16; }
 
     for (int yOff = 0; yOff < n; yOff++) {
         int py = vy + yOff;
-        if (py < 0 || py >= BUFF_HEIGHT) { continue; }
-        uint8_t spriteByte = chip8->ram.heap[chip8->cpu.idx+yOff];
-        uint8_t byteMask = 0x80;
-        for (int xOff = 0; xOff < 8; xOff++) {
+        if (py < 0 || py >= chip8->scr.height) { continue; }
+
+        uint16_t spriteRow = chip8->ram.heap[chip8->cpu.idx+yOff];
+        uint16_t rowMask = 0x80;
+        uint8_t rowWidth = 8;
+
+        if (hiResSprite) {
+            spriteRow = chip8->ram.heap[chip8->cpu.idx+yOff];
+            rowMask = 0x8000;
+            rowWidth = 16;
+        }
+
+        for (int xOff = 0; xOff < rowWidth; xOff++) {
             int px = vx + xOff;
-            if (px < 0 || px >= BUFF_WIDTH) { continue; }
-            int pInd = py*BUFF_WIDTH+px;
-            if (spriteByte&byteMask) {
+            if (px < 0 || px >= chip8->scr.width) { continue; }
+            int pInd = py*chip8->scr.width+px;
+            if (spriteRow&rowMask) {
                 if (chip8->scr.pixelBuff[pInd]) {
                     chip8->cpu.registers[VF] = 1;
                 }
@@ -258,8 +276,36 @@ void updateBuffer(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uin
                     chip8->scr.pixelBuff[pInd] = chip8->scr.nextPixelBuff[pInd];
                 }
             }
-            byteMask >>= 1;
+            rowMask >>= 1;
         }
+    }
+}
+
+void loRes(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn)
+{
+    chip8->hiRes = false;
+    chip8->scr.width = CHIP8_BUFF_WIDTH;
+    chip8->scr.height = CHIP8_BUFF_HEIGHT;
+}
+
+void hiRes(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn)
+{
+    chip8->hiRes = true;
+    chip8->scr.width = SUPER_CHIP_BUFF_WIDTH;
+    chip8->scr.height = SUPER_CHIP_BUFF_HEIGHT;
+}
+
+void saveToFlags(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn)
+{
+    for (int i = 0; i <= x; i++) {
+        chip8->flagRegisters[i] = chip8->cpu.registers[i];
+    }
+}
+
+void loadFromFlags(Chip8* chip8, uint8_t x, uint8_t y, uint8_t n, uint8_t nn, uint16_t nnn)
+{
+    for (int i = 0; i <= x; i++) {
+        chip8->cpu.registers[i] = chip8->flagRegisters[i];
     }
 }
 
@@ -272,6 +318,10 @@ Instruction decode(uint8_t opNib, uint8_t n, uint8_t nn)
             return clearScreen;
         case 0xEE:
             return subRet;
+        case 0xFE:
+            return loRes;
+        case 0xFF:
+            return hiRes;
         default:
             return 0;
         }
@@ -351,6 +401,10 @@ Instruction decode(uint8_t opNib, uint8_t n, uint8_t nn)
             return storeRegisters;
         case 0x65:
             return loadMemory;
+        case 0x75:
+            return saveToFlags;
+        case 0x85:
+            return loadFromFlags;
         default:
             return 0;
         };

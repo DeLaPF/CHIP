@@ -16,7 +16,7 @@ static const int DEBUG_BUTTONS_HEIGHT = 19;
 
 void updatePixelBuff(Display* scr)
 {
-    for (int i = 0; i < BUFF_WIDTH*BUFF_HEIGHT; i++) {
+    for (int i = 0; i < scr->width*scr->height; i++) {
         scr->pixelBuff[i] = scr->nextPixelBuff[i];
     }
 }
@@ -35,15 +35,15 @@ void draw(
     // To avoid circular dependency issue
     Chip8* chip_8 = (Chip8*)chip8;
 
-    const double drawScale = 8.0;
+    const double drawScale = chip_8->scr.width/8.0;
     const double padding = PADDING*drawScale;
     BeginDrawing();
         ClearBackground(GRAY);
 
         // Draw Buff Frame
         const Vector2 buffFrameOrigin = { padding, padding };
-        const double buffFrameWidth = (BUFF_WIDTH+2)*drawScale;
-        const double buffFrameHeight = (BUFF_HEIGHT+2)*drawScale;
+        const double buffFrameWidth = (CHIP8_BUFF_WIDTH+2)*drawScale;
+        const double buffFrameHeight = (CHIP8_BUFF_HEIGHT+2)*drawScale;
         DrawRectangle(
             buffFrameOrigin.x, buffFrameOrigin.y,
             buffFrameWidth, buffFrameHeight,
@@ -55,9 +55,9 @@ void draw(
             buffFrameOrigin.x+padding,
             buffFrameOrigin.y+padding
         };
-        for (int y = 0; y < BUFF_HEIGHT; y++) {
-            for (int x = 0; x < BUFF_WIDTH; x++) {
-                if (chip_8->scr.pixelBuff[y*BUFF_WIDTH+x]) {
+        for (int y = 0; y < chip_8->scr.height; y++) {
+            for (int x = 0; x < chip_8->scr.width; x++) {
+                if (chip_8->scr.pixelBuff[y*chip_8->scr.width+x]) {
                     DrawRectangle(
                         pixelBuffOrigin.x+(x*drawScale),
                         pixelBuffOrigin.y+(y*drawScale),

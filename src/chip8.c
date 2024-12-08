@@ -21,6 +21,9 @@ Chip8 initChip8()
     };
     Display scr = {
         .pixelBuff={0},
+        .nextPixelBuff={0},
+        .width=CHIP8_BUFF_WIDTH,
+        .height=CHIP8_BUFF_HEIGHT,
     };
     Keyboard kbd = {
         .keyMap=0,
@@ -30,6 +33,8 @@ Chip8 initChip8()
         .ram=ram,
         .scr=scr,
         .kbd=kbd,
+        .hiRes=false,
+        .flagRegisters={0},
         .isPaused=false,
         .step=0,
         .resetVF=true,
@@ -45,8 +50,19 @@ Chip8 initChip8()
 
 void setup(Chip8* chip8, const char* romPath)
 {
-    printf("Loading Font...\n");
-    loadFont(&chip8->ram);
+    printf(
+        "Loading Lo Font: 0x%x to 0x%x...\n",
+        LO_FONT_START,
+        LO_FONT_START+LO_FONT_BYTES
+    );
+    loadLoFont(&chip8->ram);
+    printf(
+        "Loading Hi Font: 0x%x to 0x%x...\n",
+        HI_FONT_START,
+        HI_FONT_START+HI_FONT_BYTES
+    );
+    printf("Loading Hi Font...\n");
+    loadHiFont(&chip8->ram);
 
     printf("Loading ROM %s...\n", romPath);
     loadROM(&chip8->ram, romPath);
