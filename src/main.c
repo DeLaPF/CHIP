@@ -8,7 +8,9 @@
 #include "raylib.h"
 
 const double cycleThreshold = 1 / 700.0;
-const double frameThreshold = 1 / 60.0;
+// const double frameThreshold = 1 / 60.0;
+// TODO: Possibly use accumulator instead of hard cuttoff
+const double frameThreshold = 1 / 120.0;
 const double timerThreshold = 1 / 60.0;
 
 void handleSound(Chip8* chip8)
@@ -72,7 +74,7 @@ int main(int argc, char *argv[])
                     instruction(&chip8, &op);
                 }
 
-                if (op.nib == 0xD) { pFrameTime = curTime; }
+                if (op.nib == 0xD && !chip8.hiRes) { pFrameTime = curTime; }
                 pCycleTime = curTime;
             }
             if ((curTime - pTimerTime) >= timerThreshold) {
