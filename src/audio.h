@@ -8,6 +8,8 @@
 typedef struct audio {
     AudioStream stream;
     float audioFrequency;
+    bool isAudioDeviceAttached;
+
     bool isPlaying;
 }Audio;
 
