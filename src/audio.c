@@ -1,51 +1,69 @@
 #include "audio.h"
 
 #include <math.h>
+#include <string.h>
 
 #include "raylib.h"
 
-static float frequency = 440.0f;
-
-// Audio frequency, for smoothing
-static float audioFrequency = 440.0f;
-
-// Previous value, used to test if sine needs to be rewritten, and to smoothly modulate frequency
-static float oldFrequency = 1.0f;
-
-// Index for audio rendering
-static float sineIdx = 0.0f;
-void AudioInputCallback(void *buffer, unsigned int frames)
-{
-    audioFrequency = frequency + (audioFrequency - frequency)*0.95f;
-
-    float incr = audioFrequency/44100.0f;
-    short *d = (short *)buffer;
-
-    for (unsigned int i = 0; i < frames; i++)
-    {
-        d[i] = (short)(32000.0f*sinf(2*PI*sineIdx));
-        sineIdx += incr;
-        if (sineIdx > 1.0f) sineIdx -= 1.0f;
-    }
-}
+#define MAX_SAMPLES               512
+#define MAX_SAMPLES_PER_UPDATE   4096
 
 Audio initAudio()
 {
     SetAudioStreamBufferSizeDefault(4096);
     AudioStream stream = LoadAudioStream(44100, 16, 1);
-    bool isAudioDeviceAttached = false;
-    if (IsAudioDeviceReady()) {
-        SetAudioStreamCallback(stream, AudioInputCallback);
-        isAudioDeviceAttached = true;
-    }
-
     Audio audio = {
         .stream=stream,
-        .audioFrequency=440.0,
+        .frequency=440.0,
+        .data={0},
+        .writeBuff={0},
         .isPlaying=false,
-        .isAudioDeviceAttached=isAudioDeviceAttached,
+        .isAudioDeviceAttached=IsAudioDeviceReady(),
     };
+    updateAudio(&audio);
+    int waveLength = (int)(22050/audio.frequency);
+    if (waveLength > MAX_SAMPLES/2) waveLength = MAX_SAMPLES/2;
+    if (waveLength < 1) waveLength = 1;
+
+    // Write sine wave
+    for (int i = 0; i < waveLength*2; i++)
+    {
+        audio.data[i] = (short)(sinf(((2*PI*(float)i/waveLength)))*32000);
+    }
+    // Make sure the rest of the line is flat
+    for (int j = waveLength*2; j < MAX_SAMPLES; j++) {
+        audio.data[j] = (short)0;
+    }
+
     return audio;
+}
+
+void updateAudio(Audio* audio)
+{
+    if (audio->isAudioDeviceAttached && IsAudioStreamProcessed(audio->stream)) {
+        int waveLength = (int)(22050/audio->frequency);
+        int writeCursor = 0;
+        int readCursor = 0;
+        while (writeCursor < MAX_SAMPLES_PER_UPDATE) {
+            // Start by trying to write the whole chunk at once
+            int writeLength = MAX_SAMPLES_PER_UPDATE-writeCursor;
+
+            // Limit to the maximum readable size
+            int readLength = waveLength-readCursor;
+
+            if (writeLength > readLength) writeLength = readLength;
+
+            // Write the slice
+            memcpy(audio->writeBuff + writeCursor, audio->data + readCursor, writeLength*sizeof(short));
+
+            // Update cursors and loop audio
+            readCursor = (readCursor + writeLength) % waveLength;
+
+            writeCursor += writeLength;
+        }
+
+        UpdateAudioStream(audio->stream, audio->writeBuff, MAX_SAMPLES_PER_UPDATE);
+    }
 }
 
 void detachAudio(Audio* audio)

@@ -89,6 +89,7 @@ int main(int argc, char *argv[])
             pOpCode = curOp.code;
         }
 
+        updateAudio(&chip8.audio);
         draw(&chip8, delta);
         // draw_debug(&chip8, curTime, pCycleTime, pFrameTime, delta, curOp.code, pOpCode);
         pLoopTime = curTime;

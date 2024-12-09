@@ -7,13 +7,16 @@
 
 typedef struct audio {
     AudioStream stream;
-    float audioFrequency;
+    float frequency;
+    short data[512];
+    short writeBuff[4096];
     bool isAudioDeviceAttached;
 
     bool isPlaying;
 }Audio;
 
 Audio initAudio();
+void updateAudio(Audio* audio);
 void detachAudio(Audio* audio);
 void playAudio(Audio* audio);
 void pauseAudio(Audio* audio);
