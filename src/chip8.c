@@ -33,6 +33,7 @@ Chip8 initChip8()
         .ram=ram,
         .scr=scr,
         .kbd=kbd,
+        .audio=initAudio(),
         .hiRes=false,
         .flagRegisters={0},
         .isPaused=false,
@@ -73,6 +74,11 @@ Chip8 initChip8()
     // .dispWait=false,
 
     return chip8;
+}
+
+void detatchChip8(Chip8* chip8)
+{
+    detachAudio(&chip8->audio);
 }
 
 void setup(Chip8* chip8, const char* romPath)

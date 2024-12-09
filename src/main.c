@@ -11,9 +11,13 @@ const double cycleThreshold = 1 / 700.0;
 const double frameThreshold = 1 / 60.0;
 const double timerThreshold = 1 / 60.0;
 
-void handleSound()
+void handleSound(Chip8* chip8)
 {
-    // TODO: impl
+    if (chip8->ram.soundTimer) {
+        playAudio(&chip8->audio);
+    } else {
+        pauseAudio(&chip8->audio);
+    }
 }
 
 int main(int argc, char *argv[])
@@ -23,10 +27,11 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    // Setup raylib window
+    // Setup raylib audio and window
     const int windowWidth = 800;
     const int windowHeight = 450;
     InitWindow(windowWidth, windowHeight, "CHIP-8");
+    InitAudioDevice();
 
     // Init rand
     srand(time(NULL));
@@ -71,7 +76,7 @@ int main(int argc, char *argv[])
                 pCycleTime = curTime;
             }
             if ((curTime - pTimerTime) >= timerThreshold) {
-                handleSound();
+                handleSound(&chip8);
 
                 if (chip8.ram.delayTimer) { chip8.ram.delayTimer--; }
                 if (chip8.ram.soundTimer) { chip8.ram.soundTimer--; }
@@ -87,6 +92,8 @@ int main(int argc, char *argv[])
         pLoopTime = curTime;
     }
 
+    detatchChip8(&chip8);
+    CloseAudioDevice();
     CloseWindow();
     return 0;
 }

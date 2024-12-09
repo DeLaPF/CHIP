@@ -8,6 +8,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 set(SOURCES
     src/main.c
+	src/audio.c
 	src/chip8.c
 	src/constants.c
     src/cpu.c
@@ -17,6 +18,7 @@ set(SOURCES
     src/ram.c
 )
 set(HEADER_FILES
+	src/audio.h
 	src/chip8.h
     src/constants.h
 	src/cpu.h

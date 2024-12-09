@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "audio.h"
 #include "cpu.h"
 #include "ram.h"
 #include "display.h"
@@ -15,6 +16,7 @@ typedef struct chip8 {
     RAM ram;
     Display scr;
     Keyboard kbd;
+    Audio audio;
 
     // SuperChip
     bool hiRes;
@@ -35,6 +37,7 @@ typedef struct chip8 {
 }Chip8;
 
 Chip8 initChip8();
+void detatchChip8(Chip8* chip8);
 void setup(Chip8* chip8, const char* romPath);
 
 #endif
