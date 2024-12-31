@@ -1,7 +1,7 @@
 #ifndef INSTRUCTIONS_H
 #define INSTRUCTIONS_H
 
-#include "chip8.h"
+#include "chip8/chip8.h"
 
 typedef void (*Instruction)(Chip8* chip8, Op* op);
 Instruction decode(Op* op);

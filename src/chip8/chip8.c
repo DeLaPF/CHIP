@@ -23,15 +23,13 @@ Chip8 initChip8()
         .width=CHIP8_BUFF_WIDTH,
         .height=CHIP8_BUFF_HEIGHT,
     };
-    Keyboard kbd = {
-        .keyMap=0,
-    };
+    Keymap keymap = 0;
     // TODO: add method for setting quirks at runtime (config file or args?)
     Chip8 chip8 = {
         .cpu=cpu,
         .ram=ram,
         .vram=vram,
-        .kbd=kbd,
+        .keymap=keymap,
         .hiRes=false,
         .flagRegisters={0},
         .isPaused=false,

@@ -4,10 +4,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-// TODO: remove all raylib dependencies (handle in raylib/emu.c)
 #include "cpu.h"
 #include "ram.h"
-#include "keyboard.h"
+#include "keymap.h"
 #include "vram.h"
 
 typedef struct chip8 {
@@ -15,7 +14,7 @@ typedef struct chip8 {
     Cpu cpu;
     RAM ram;
     VRAM vram;
-    Keyboard kbd;
+    Keymap keymap;
 
     // SuperChip
     bool hiRes;

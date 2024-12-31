@@ -1,5 +1,5 @@
-#ifndef DISPLAY_H
-#define DISPLAY_H
+#ifndef RAYLIB_DISPLAY_H
+#define RAYLIB_DISPLAY_H
 
 #include <stdint.h>
 

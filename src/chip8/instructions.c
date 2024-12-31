@@ -3,7 +3,6 @@
 #include <stdlib.h>
 
 #include "constants.h"
-#include "keyboard.h"
 
 void clearScreen(Chip8* chip8, Op* op)
 {
@@ -148,14 +147,14 @@ void setRegConstMaskRand(Chip8* chip8, Op* op)
 
 void skipIfKeyPressed(Chip8* chip8, Op* op)
 {
-    if (isKeyDown(&chip8->kbd, chip8->cpu.registers[op->x])) {
+    if (isKeyDown(chip8->keymap, chip8->cpu.registers[op->x])) {
         chip8->cpu.pc += 2;
     }
 }
 
 void skipIfKeyNPressed(Chip8* chip8, Op* op)
 {
-    if (!isKeyDown(&chip8->kbd, chip8->cpu.registers[op->x])) {
+    if (!isKeyDown(chip8->keymap, chip8->cpu.registers[op->x])) {
         chip8->cpu.pc += 2;
     }
 }
@@ -164,10 +163,10 @@ static int keyInd = -1;
 void waitForKeypress(Chip8* chip8, Op* op)
 {
     if (keyInd < 0) {
-        keyInd = getLowestKeyPressed(&chip8->kbd);
+        keyInd = getLowestKeyPressed(chip8->keymap);
     }
 
-    if (keyInd < 0 || isKeyDown(&chip8->kbd, keyInd)) {
+    if (keyInd < 0 || isKeyDown(chip8->keymap, keyInd)) {
         chip8->cpu.pc -= 2;
     } else {
         chip8->cpu.registers[op->x] = keyInd;

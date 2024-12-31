@@ -7,6 +7,8 @@
 #include "chip8/chip8.h"
 #include "chip8/instructions.h"
 #include "raylib/audio.h"
+#include "raylib/display.h"
+#include "raylib/keyboard.h"
 
 const double cycleThreshold = 1 / 700.0;
 // const double frameThreshold = 1 / 60.0;
@@ -37,7 +39,7 @@ void run(char* romPath, bool startPaused)
 
     // Main game loop
     while (!WindowShouldClose()) {
-        updateKeyMap(&chip8.kbd);
+        updateKeyMap(&chip8);
 
         double curTime = GetTime();
         float delta = curTime - pLoopTime;

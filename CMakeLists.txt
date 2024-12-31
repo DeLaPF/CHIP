@@ -13,12 +13,13 @@ set(SOURCES
     src/chip8/constants.c
     src/chip8/cpu.c
     src/chip8/instructions.c
-    src/chip8/keyboard.c
+    src/chip8/keymap.c
     src/chip8/ram.c
 
     src/raylib/audio.c
     src/raylib/display.c
     src/raylib/emu.c
+    src/raylib/keyboard.c
 )
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE src)

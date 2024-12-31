@@ -4,7 +4,6 @@
 
 #include "constants.h"
 
-
 void loadLoFont(RAM* ram)
 {
     for (int i = 0; i < LO_FONT_BYTES; i++) {
