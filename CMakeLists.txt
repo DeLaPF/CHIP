@@ -21,5 +21,5 @@ set(SOURCES
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 
-add_subdirectory(third_party/raylib)
-target_link_libraries(${PROJECT_NAME} PUBLIC raylib)
+add_subdirectory(deps/raylib)
+target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
