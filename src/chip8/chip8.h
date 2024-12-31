@@ -5,19 +5,17 @@
 #include <stdint.h>
 
 // TODO: remove all raylib dependencies (handle in raylib/emu.c)
-#include "raylib/audio.h"
 #include "cpu.h"
 #include "ram.h"
-#include "display.h"
 #include "keyboard.h"
+#include "vram.h"
 
 typedef struct chip8 {
     // Hardware
     Cpu cpu;
     RAM ram;
-    Display scr;
+    VRAM vram;
     Keyboard kbd;
-    Audio audio;
 
     // SuperChip
     bool hiRes;

@@ -6,21 +6,13 @@
 
 #include "chip8/chip8.h"
 #include "chip8/instructions.h"
+#include "raylib/audio.h"
 
 const double cycleThreshold = 1 / 700.0;
 // const double frameThreshold = 1 / 60.0;
 // TODO: Possibly use accumulator instead of hard cuttoff
 const double frameThreshold = 1 / 120.0;
 const double timerThreshold = 1 / 60.0;
-
-static void handleSound(Chip8* chip8)
-{
-    if (chip8->ram.soundTimer) {
-        playAudio(&chip8->audio);
-    } else {
-        pauseAudio(&chip8->audio);
-    }
-}
 
 void run(char* romPath, bool startPaused)
 {
@@ -29,6 +21,7 @@ void run(char* romPath, bool startPaused)
     const int windowHeight = 450;
     InitWindow(windowWidth, windowHeight, "CHIP-8");
     InitAudioDevice();
+    Audio audio = initAudio();
 
     // Chip-8
     Chip8 chip8 = initChip8();
@@ -70,7 +63,11 @@ void run(char* romPath, bool startPaused)
                 pCycleTime = curTime;
             }
             if ((curTime - pTimerTime) >= timerThreshold) {
-                handleSound(&chip8);
+                if (chip8.ram.soundTimer) {
+                    playAudio(&audio);
+                } else {
+                    pauseAudio(&audio);
+                }
 
                 if (chip8.ram.delayTimer) { chip8.ram.delayTimer--; }
                 if (chip8.ram.soundTimer) { chip8.ram.soundTimer--; }
@@ -81,12 +78,13 @@ void run(char* romPath, bool startPaused)
             pOpCode = curOp.code;
         }
 
-        updateAudio(&chip8.audio);
+        updateAudio(&audio);
         draw(&chip8, delta);
         // draw_debug(&chip8, curTime, pCycleTime, pFrameTime, delta, curOp.code, pOpCode);
         pLoopTime = curTime;
     }
 
+    detachAudio(&audio);
     detatchChip8(&chip8);
     CloseAudioDevice();
     CloseWindow();

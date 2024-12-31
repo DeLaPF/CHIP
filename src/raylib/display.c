@@ -2,11 +2,10 @@
 
 #include <stdio.h>
 
-#include "chip8.h"
-#include "constants.h"
+#include "chip8/chip8.h"
+#include "chip8/constants.h"
 
 #include "raylib.h"
-
 
 static const int PADDING = 1;
 static const int DEBUG_INFO_WIDTH = 30;
@@ -14,14 +13,10 @@ static const int DEBUG_INFO_HEIGHT = 54;
 static const int DEBUG_BUTTONS_WIDTH = 66;
 static const int DEBUG_BUTTONS_HEIGHT = 19;
 
-void draw(void* chip8, float delta)
+void draw(Chip8* chip8, float delta)
 {
-    // TODO: find better solution
-    // To avoid circular dependency issue
-    Chip8* chip_8 = (Chip8*)chip8;
-
     const double drawScale = 12.0;
-    const double buffPixelSize = chip_8->hiRes ? drawScale/2 : drawScale;
+    const double buffPixelSize = chip8->hiRes ? drawScale/2 : drawScale;
     const double padding = PADDING*drawScale;
     BeginDrawing();
         ClearBackground(GRAY);
@@ -39,9 +34,9 @@ void draw(void* chip8, float delta)
             buffFrameOrigin.x+padding,
             buffFrameOrigin.y+padding
         };
-        for (int y = 0; y < chip_8->scr.height; y++) {
-            for (int x = 0; x < chip_8->scr.width; x++) {
-                if (chip_8->scr.pixelBuff[y*chip_8->scr.width+x]) {
+        for (int y = 0; y < chip8->vram.height; y++) {
+            for (int x = 0; x < chip8->vram.width; x++) {
+                if (chip8->vram.pixelBuff[y*chip8->vram.width+x]) {
                     DrawRectangle(
                         pixelBuffOrigin.x+(x*buffPixelSize),
                         pixelBuffOrigin.y+(y*buffPixelSize),
@@ -61,7 +56,7 @@ void draw(void* chip8, float delta)
 }
 
 void draw_debug(
-    void* chip8,
+    Chip8* chip8,
     double curTime,
     double prevCycleTime,
     double prevFrameTime,
@@ -70,12 +65,8 @@ void draw_debug(
     uint16_t prevOpCode
 )
 {
-    // TODO: find better solution
-    // To avoid circular dependency issue
-    Chip8* chip_8 = (Chip8*)chip8;
-
     const double drawScale = 8.0;
-    const double buffPixelSize = chip_8->hiRes ? drawScale/2 : drawScale;
+    const double buffPixelSize = chip8->hiRes ? drawScale/2 : drawScale;
     const double padding = PADDING*drawScale;
     BeginDrawing();
         ClearBackground(GRAY);
@@ -95,9 +86,9 @@ void draw_debug(
             buffFrameOrigin.x+padding,
             buffFrameOrigin.y+padding
         };
-        for (int y = 0; y < chip_8->scr.height; y++) {
-            for (int x = 0; x < chip_8->scr.width; x++) {
-                if (chip_8->scr.pixelBuff[y*chip_8->scr.width+x]) {
+        for (int y = 0; y < chip8->vram.height; y++) {
+            for (int x = 0; x < chip8->vram.width; x++) {
+                if (chip8->vram.pixelBuff[y*chip8->vram.width+x]) {
                     DrawRectangle(
                         pixelBuffOrigin.x+(x*buffPixelSize),
                         pixelBuffOrigin.y+(y*buffPixelSize),
@@ -174,30 +165,30 @@ void draw_debug(
             "OP: 0x%4x\n"
             "Prev OP: 0x%4x\n"
             "Delay: %d\nSound: %d",
-            chip_8->cpu.registers[0],
-            chip_8->cpu.registers[1],
-            chip_8->cpu.registers[2],
-            chip_8->cpu.registers[3],
-            chip_8->cpu.registers[4],
-            chip_8->cpu.registers[5],
-            chip_8->cpu.registers[6],
-            chip_8->cpu.registers[7],
-            chip_8->cpu.registers[8],
-            chip_8->cpu.registers[9],
-            chip_8->cpu.registers[10],
-            chip_8->cpu.registers[11],
-            chip_8->cpu.registers[12],
-            chip_8->cpu.registers[13],
-            chip_8->cpu.registers[14],
-            chip_8->cpu.registers[15],
-            chip_8->cpu.idx,
-            chip_8->cpu.pc,
-            chip_8->cpu.sp,
-            chip_8->cpu.sp ? chip_8->ram.stack[chip_8->cpu.sp-1] : 0x0,
+            chip8->cpu.registers[0],
+            chip8->cpu.registers[1],
+            chip8->cpu.registers[2],
+            chip8->cpu.registers[3],
+            chip8->cpu.registers[4],
+            chip8->cpu.registers[5],
+            chip8->cpu.registers[6],
+            chip8->cpu.registers[7],
+            chip8->cpu.registers[8],
+            chip8->cpu.registers[9],
+            chip8->cpu.registers[10],
+            chip8->cpu.registers[11],
+            chip8->cpu.registers[12],
+            chip8->cpu.registers[13],
+            chip8->cpu.registers[14],
+            chip8->cpu.registers[15],
+            chip8->cpu.idx,
+            chip8->cpu.pc,
+            chip8->cpu.sp,
+            chip8->cpu.sp ? chip8->ram.stack[chip8->cpu.sp-1] : 0x0,
             opCode,
             prevOpCode,
-            chip_8->ram.delayTimer,
-            chip_8->ram.soundTimer
+            chip8->ram.delayTimer,
+            chip8->ram.soundTimer
         );
         DrawText(
             buff,
@@ -275,17 +266,17 @@ void draw_debug(
         );
         if (CheckCollisionPointRec(mousePoint, pausePlayBounds)) {
             if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
-                chip_8->isPaused = !chip_8->isPaused;
+                chip8->isPaused = !chip8->isPaused;
             }
         }
         if (CheckCollisionPointRec(mousePoint, stepBounds)) {
             if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
-                chip_8->step = 1;
+                chip8->step = 1;
             }
         }
         if (CheckCollisionPointRec(mousePoint, step10Bounds)) {
             if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) {
-                chip_8->step = 10;
+                chip8->step = 10;
             }
         }
 

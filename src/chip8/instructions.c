@@ -5,11 +5,10 @@
 #include "constants.h"
 #include "keyboard.h"
 
-
 void clearScreen(Chip8* chip8, Op* op)
 {
-    for (int i = 0; i < chip8->scr.width*chip8->scr.height; i++) {
-        chip8->scr.pixelBuff[i] = 0;
+    for (int i = 0; i < chip8->vram.width*chip8->vram.height; i++) {
+        chip8->vram.pixelBuff[i] = 0;
     }
 }
 
@@ -233,8 +232,8 @@ void loadMemory(Chip8* chip8, Op* op)
 
 void updateBuffer(Chip8* chip8, Op* op)
 {
-    uint8_t vx = chip8->cpu.registers[op->x]%chip8->scr.width;
-    uint8_t vy = chip8->cpu.registers[op->y]%chip8->scr.height;
+    uint8_t vx = chip8->cpu.registers[op->x]%chip8->vram.width;
+    uint8_t vy = chip8->cpu.registers[op->y]%chip8->vram.height;
     chip8->cpu.registers[VF] = 0;
 
     // SuperChip
@@ -244,9 +243,9 @@ void updateBuffer(Chip8* chip8, Op* op)
     for (int yOff = 0; yOff < op->n; yOff++) {
         int py = vy + yOff;
         if (chip8->clipping) {
-            if (py < 0 || py >= chip8->scr.height) { continue; }
+            if (py < 0 || py >= chip8->vram.height) { continue; }
         } else {
-            py %= chip8->scr.height;
+            py %= chip8->vram.height;
         }
 
         uint16_t spriteRow = chip8->ram.heap[chip8->cpu.idx+yOff];
@@ -262,18 +261,18 @@ void updateBuffer(Chip8* chip8, Op* op)
         for (int xOff = 0; xOff < rowWidth; xOff++) {
             int px = vx + xOff;
             if (chip8->clipping) {
-                if (px < 0 || px >= chip8->scr.width) { continue; }
+                if (px < 0 || px >= chip8->vram.width) { continue; }
             } else {
-                px %= chip8->scr.width;
+                px %= chip8->vram.width;
             }
 
-            int pInd = py*chip8->scr.width+px;
+            int pInd = py*chip8->vram.width+px;
             if (spriteRow&rowMask) {
-                if (chip8->scr.pixelBuff[pInd]) {
+                if (chip8->vram.pixelBuff[pInd]) {
                     chip8->cpu.registers[VF] = 1;
                 }
 
-                chip8->scr.pixelBuff[pInd] ^= 1;
+                chip8->vram.pixelBuff[pInd] ^= 1;
             }
             rowMask >>= 1;
         }
@@ -283,14 +282,14 @@ void updateBuffer(Chip8* chip8, Op* op)
 void scrollDN(Chip8* chip8, Op* op)
 {
     int shift = op->n;
-    for (int py = chip8->scr.height-1; py >= 0; py--) {
-        for (int px = 0; px < chip8->scr.width; px++) {
-            int pInd = py*chip8->scr.width+px;
+    for (int py = chip8->vram.height-1; py >= 0; py--) {
+        for (int px = 0; px < chip8->vram.width; px++) {
+            int pInd = py*chip8->vram.width+px;
             if (py > shift) {
-                int pShiftInd = (py-shift)*chip8->scr.width+px;
-                chip8->scr.pixelBuff[pInd] = chip8->scr.pixelBuff[pShiftInd];
+                int pShiftInd = (py-shift)*chip8->vram.width+px;
+                chip8->vram.pixelBuff[pInd] = chip8->vram.pixelBuff[pShiftInd];
             } else {
-                chip8->scr.pixelBuff[pInd] = 0;
+                chip8->vram.pixelBuff[pInd] = 0;
             }
         }
     }
@@ -299,13 +298,13 @@ void scrollDN(Chip8* chip8, Op* op)
 void scrollR(Chip8* chip8, Op* op)
 {
     int shift = 4;
-    for (int py = 0; py < chip8->scr.height; py++) {
-        for (int px = chip8->scr.width-1; px >= 0; px--) {
-            int pInd = py*chip8->scr.width+px;
+    for (int py = 0; py < chip8->vram.height; py++) {
+        for (int px = chip8->vram.width-1; px >= 0; px--) {
+            int pInd = py*chip8->vram.width+px;
             if (px > shift) {
-                chip8->scr.pixelBuff[pInd] = chip8->scr.pixelBuff[pInd-shift];
+                chip8->vram.pixelBuff[pInd] = chip8->vram.pixelBuff[pInd-shift];
             } else {
-                chip8->scr.pixelBuff[pInd] = 0;
+                chip8->vram.pixelBuff[pInd] = 0;
             }
         }
     }
@@ -314,13 +313,13 @@ void scrollR(Chip8* chip8, Op* op)
 void scrollL(Chip8* chip8, Op* op)
 {
     int shift = 4;
-    for (int py = 0; py < chip8->scr.height; py++) {
-        for (int px = 0; px < chip8->scr.width; px++) {
-            int pInd = py*chip8->scr.width+px;
-            if (px < chip8->scr.width-shift) {
-                chip8->scr.pixelBuff[pInd] = chip8->scr.pixelBuff[pInd+shift];
+    for (int py = 0; py < chip8->vram.height; py++) {
+        for (int px = 0; px < chip8->vram.width; px++) {
+            int pInd = py*chip8->vram.width+px;
+            if (px < chip8->vram.width-shift) {
+                chip8->vram.pixelBuff[pInd] = chip8->vram.pixelBuff[pInd+shift];
             } else {
-                chip8->scr.pixelBuff[pInd] = 0;
+                chip8->vram.pixelBuff[pInd] = 0;
             }
         }
     }
@@ -329,15 +328,15 @@ void scrollL(Chip8* chip8, Op* op)
 void loRes(Chip8* chip8, Op* op)
 {
     chip8->hiRes = false;
-    chip8->scr.width = CHIP8_BUFF_WIDTH;
-    chip8->scr.height = CHIP8_BUFF_HEIGHT;
+    chip8->vram.width = CHIP8_BUFF_WIDTH;
+    chip8->vram.height = CHIP8_BUFF_HEIGHT;
 }
 
 void hiRes(Chip8* chip8, Op* op)
 {
     chip8->hiRes = true;
-    chip8->scr.width = SUPER_CHIP_BUFF_WIDTH;
-    chip8->scr.height = SUPER_CHIP_BUFF_HEIGHT;
+    chip8->vram.width = SUPER_CHIP_BUFF_WIDTH;
+    chip8->vram.height = SUPER_CHIP_BUFF_HEIGHT;
 }
 
 void setIdxToHiChar(Chip8* chip8, Op* op)

@@ -18,7 +18,7 @@ Chip8 initChip8()
         .stack={0},
         .heap={0},
     };
-    Display scr = {
+    VRAM vram = {
         .pixelBuff={0},
         .width=CHIP8_BUFF_WIDTH,
         .height=CHIP8_BUFF_HEIGHT,
@@ -30,9 +30,8 @@ Chip8 initChip8()
     Chip8 chip8 = {
         .cpu=cpu,
         .ram=ram,
-        .scr=scr,
+        .vram=vram,
         .kbd=kbd,
-        .audio=initAudio(),
         .hiRes=false,
         .flagRegisters={0},
         .isPaused=false,
@@ -77,7 +76,7 @@ Chip8 initChip8()
 
 void detatchChip8(Chip8* chip8)
 {
-    detachAudio(&chip8->audio);
+    // TODO: handle freeing memory (once switch over heap based mem model)
 }
 
 void setup(Chip8* chip8, const char* romPath)
