@@ -13,24 +13,29 @@ static const int DEBUG_INFO_HEIGHT = 54;
 static const int DEBUG_BUTTONS_WIDTH = 66;
 static const int DEBUG_BUTTONS_HEIGHT = 19;
 
-void draw(Chip8* chip8, float delta)
+typedef struct ivec2 {
+    int x;
+    int y;
+}iVec2;
+
+void draw(Chip8* chip8, double delta)
 {
-    const double drawScale = 12.0;
-    const double buffPixelSize = chip8->hiRes ? drawScale/2 : drawScale;
-    const double padding = PADDING*drawScale;
+    const int drawScale = 12;
+    const int buffPixelSize = (int)(chip8->hiRes ? drawScale/2 : drawScale);
+    const int padding = (int)(PADDING*drawScale);
     BeginDrawing();
         ClearBackground(GRAY);
 
         // Draw Buff Frame
-        const Vector2 buffFrameOrigin = { padding, padding };
-        const double buffFrameWidth = (CHIP8_BUFF_WIDTH+2)*drawScale;
-        const double buffFrameHeight = (CHIP8_BUFF_HEIGHT+2)*drawScale;
+        const iVec2 buffFrameOrigin = { padding, padding };
+        const int buffFrameWidth = (CHIP8_BUFF_WIDTH+2)*drawScale;
+        const int buffFrameHeight = (CHIP8_BUFF_HEIGHT+2)*drawScale;
         DrawRectangle(
             buffFrameOrigin.x, buffFrameOrigin.y,
             buffFrameWidth, buffFrameHeight,
             RAYWHITE
         );
-        const Vector2 pixelBuffOrigin = {
+        const iVec2 pixelBuffOrigin = {
             buffFrameOrigin.x+padding,
             buffFrameOrigin.y+padding
         };
@@ -50,7 +55,7 @@ void draw(Chip8* chip8, float delta)
 
         // Draw mspt
         char deltaBuff[50];
-        sprintf(deltaBuff, "Time: %.8lf", delta);
+        snprintf(deltaBuff, sizeof(deltaBuff), "Time: %.8lf", delta);
         DrawText(deltaBuff, padding, padding, 20, BLACK);
     EndDrawing();
 }
@@ -65,16 +70,16 @@ void draw_debug(
     uint16_t prevOpCode
 )
 {
-    const double drawScale = 8.0;
-    const double buffPixelSize = chip8->hiRes ? drawScale/2 : drawScale;
-    const double padding = PADDING*drawScale;
+    const int drawScale = 8;
+    const int buffPixelSize = (int)(chip8->hiRes ? drawScale/2 : drawScale);
+    const int padding = (int)(PADDING*drawScale);
     BeginDrawing();
         ClearBackground(GRAY);
 
         // Draw Buff Frame
-        const Vector2 buffFrameOrigin = { padding, padding };
-        const double buffFrameWidth = (CHIP8_BUFF_WIDTH+2)*drawScale;
-        const double buffFrameHeight = (CHIP8_BUFF_HEIGHT+2)*drawScale;
+        const iVec2 buffFrameOrigin = { padding, padding };
+        const int buffFrameWidth = (CHIP8_BUFF_WIDTH+2)*drawScale;
+        const int buffFrameHeight = (CHIP8_BUFF_HEIGHT+2)*drawScale;
         DrawRectangle(
             buffFrameOrigin.x, buffFrameOrigin.y,
             buffFrameWidth, buffFrameHeight,
@@ -82,7 +87,7 @@ void draw_debug(
         );
 
         // Draw Pixel Buffer to Buff Frame
-        const Vector2 pixelBuffOrigin = {
+        const iVec2 pixelBuffOrigin = {
             buffFrameOrigin.x+padding,
             buffFrameOrigin.y+padding
         };
@@ -101,12 +106,12 @@ void draw_debug(
         }
 
         // Draw Debug Info Frame
-        const Vector2 debugInfoFrameOrigin = {
+        const iVec2 debugInfoFrameOrigin = {
             buffFrameOrigin.x+buffFrameWidth+padding,
             padding
         };
-        const double debugInfoFrameHeight = DEBUG_INFO_HEIGHT*drawScale;
-        const double debugInfoFrameWidth = DEBUG_INFO_WIDTH*drawScale;
+        const int debugInfoFrameHeight = DEBUG_INFO_HEIGHT*drawScale;
+        const int debugInfoFrameWidth = DEBUG_INFO_WIDTH*drawScale;
         DrawRectangle(
             debugInfoFrameOrigin.x, debugInfoFrameOrigin.y,
             debugInfoFrameWidth, debugInfoFrameHeight,
@@ -115,7 +120,7 @@ void draw_debug(
 
         // Draw Debug Info (fps/mspt, registers, stack(ptr), etc.)
         char curTimeBuff[50];
-        sprintf(curTimeBuff, "Time: %.2lf", curTime);
+        snprintf(curTimeBuff, sizeof(curTimeBuff), "Time: %.2lf", curTime);
         DrawText(
             curTimeBuff,
             debugInfoFrameOrigin.x+padding,
@@ -124,7 +129,7 @@ void draw_debug(
             BLACK
         );
         char deltaTimeBuff[50];
-        sprintf(deltaTimeBuff, "Delta: %.5lf", deltaTime);
+        snprintf(deltaTimeBuff, sizeof(deltaTimeBuff), "Delta: %.5lf", deltaTime);
         DrawText(
             deltaTimeBuff,
             debugInfoFrameOrigin.x+padding,
@@ -133,7 +138,7 @@ void draw_debug(
             BLACK
         );
         char prevCycleTimeBuff[50];
-        sprintf(prevCycleTimeBuff, "Prev Cycle: %.2lf", prevCycleTime);
+        snprintf(prevCycleTimeBuff, sizeof(prevCycleTimeBuff), "Prev Cycle: %.2lf", prevCycleTime);
         DrawText(
             prevCycleTimeBuff,
             debugInfoFrameOrigin.x+padding,
@@ -142,7 +147,7 @@ void draw_debug(
             BLACK
         );
         char prevFrameTimeBuff[50];
-        sprintf(prevFrameTimeBuff, "Prev Frame: %.2lf", prevFrameTime);
+        snprintf(prevFrameTimeBuff, sizeof(prevFrameTimeBuff), "Prev Frame: %.2lf", prevFrameTime);
         DrawText(
             prevFrameTimeBuff,
             debugInfoFrameOrigin.x+padding,
@@ -152,8 +157,9 @@ void draw_debug(
         );
         // CPU info
         char buff[200];
-        sprintf(
+        snprintf(
             buff,
+            sizeof(buff),
             "0:%x  1:%x  2:%x  3:%x\n"
             "4:%x  5:%x  6:%x  7:%x\n"
             "8:%x  9:%x  A:%x  B:%x\n"
@@ -199,34 +205,34 @@ void draw_debug(
         );
 
         // Draw Debug Buttons Frame
-        const Vector2 debugButtonsFrameOrigin = {
-            padding,
-            buffFrameOrigin.y+buffFrameHeight+padding
+        Rectangle debugButtonsFrame = {
+            (float)padding,
+            (float)buffFrameOrigin.y+buffFrameHeight+padding,
+            (float)DEBUG_BUTTONS_WIDTH*drawScale,
+            (float)DEBUG_BUTTONS_HEIGHT*drawScale,
         };
-        const double debugButtonsFrameHeight = DEBUG_BUTTONS_HEIGHT*drawScale;
-        const double debugButtonsFrameWidth = DEBUG_BUTTONS_WIDTH*drawScale;
         DrawRectangle(
-            debugButtonsFrameOrigin.x, debugButtonsFrameOrigin.y,
-            debugButtonsFrameWidth, debugButtonsFrameHeight,
+            (int)debugButtonsFrame.x, (int)debugButtonsFrame.y,
+            (int)debugButtonsFrame.width, (int)debugButtonsFrame.height,
             RAYWHITE
         );
 
         // TODO: Draw Debug Buttons (to enable pause/play, step, etc.)
         Vector2 mousePoint = GetMousePosition();
         Rectangle pausePlayBounds = {
-            debugButtonsFrameOrigin.x+padding,
-            debugButtonsFrameOrigin.y+padding,
+            debugButtonsFrame.x+padding,
+            debugButtonsFrame.y+padding,
             40,
             20
         };
         DrawRectangle(
-            pausePlayBounds.x,pausePlayBounds.y,
-            pausePlayBounds.width, pausePlayBounds.height,
+            (int)pausePlayBounds.x,(int)pausePlayBounds.y,
+            (int)pausePlayBounds.width, (int)pausePlayBounds.height,
             GRAY
         );
         DrawText(
             "P/P",
-            pausePlayBounds.x+padding, pausePlayBounds.y+padding,
+            (int)pausePlayBounds.x+padding, (int)pausePlayBounds.y+padding,
             5,
             BLACK
         );
@@ -237,13 +243,13 @@ void draw_debug(
             20
         };
         DrawRectangle(
-            stepBounds.x,stepBounds.y,
-            stepBounds.width, stepBounds.height,
+            (int)stepBounds.x, (int)stepBounds.y,
+            (int)stepBounds.width, (int)stepBounds.height,
             GRAY
         );
         DrawText(
             "Step",
-            stepBounds.x+padding, stepBounds.y+padding,
+            (int)stepBounds.x+padding, (int)stepBounds.y+padding,
             5,
             BLACK
         );
@@ -254,13 +260,13 @@ void draw_debug(
             20
         };
         DrawRectangle(
-            step10Bounds.x,step10Bounds.y,
-            step10Bounds.width, step10Bounds.height,
+            (int)step10Bounds.x, (int)step10Bounds.y,
+            (int)step10Bounds.width, (int)step10Bounds.height,
             GRAY
         );
         DrawText(
             "Step 10",
-            step10Bounds.x+padding, step10Bounds.y+padding,
+            (int)step10Bounds.x+padding, (int)step10Bounds.y+padding,
             5,
             BLACK
         );

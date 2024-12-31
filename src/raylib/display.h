@@ -5,7 +5,7 @@
 
 #include "chip8/chip8.h"
 
-void draw(Chip8* chip8, float delta);
+void draw(Chip8* chip8, double delta);
 void draw_debug(
     Chip8* chip8,
     double curTime,

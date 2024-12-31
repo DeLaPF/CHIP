@@ -43,7 +43,7 @@ void run(char* romPath, bool startPaused)
         updateKeyMap(&chip8);
 
         double curTime = GetTime();
-        float delta = curTime - pLoopTime;
+        double delta = curTime - pLoopTime;
         Op curOp = peekOp(&chip8.cpu, &chip8.ram);
 
         if (!chip8.isPaused || chip8.step) {
