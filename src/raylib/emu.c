@@ -5,7 +5,6 @@
 #include "raylib.h"
 
 #include "chip8/chip8.h"
-#include "chip8/instructions.h"
 #include "raylib/audio.h"
 #include "raylib/display.h"
 #include "raylib/keyboard.h"
@@ -28,8 +27,8 @@ void run(char* romPath, bool startPaused)
     // Chip-8
     Chip8 chip8 = makeChip8();
     // TODO: add method for setting quirks at runtime (config file or args?)
-    setVersionChip8(&chip8, SCHIP_MODERN);
-    loadROMChip8(&chip8, romPath);
+    Chip8SetVersion(&chip8, SCHIP_MODERN);
+    Chip8LoadROM(&chip8, romPath);
     chip8.isPaused = startPaused;
     printf("Setup Complete!\n");
 
@@ -48,22 +47,12 @@ void run(char* romPath, bool startPaused)
         Op curOp = peekOp(&chip8.cpu, &chip8.ram);
 
         if (!chip8.isPaused || chip8.step) {
+            if (chip8.step) { chip8.step--; }
+
             bool wait = chip8.dispWait && (curTime - pFrameTime) < frameThreshold;
             if ((curTime - pCycleTime) >= cycleThreshold && !wait) {
-                // Fetch
-                Op op = fetchOp(&chip8.cpu, &chip8.ram);
-                // Decode
-                Instruction instruction = decode(&op);
-                // Execute
-                if (!instruction) {
-                    printf("Error Unknown Instruction: 0x%04x\n", op.code);
-                    printf("Prev OP: 0x%04x\n", pOpCode);
-                    chip8.isPaused = true;
-                } else {
-                    instruction(&chip8, &op);
-                }
-
-                if (op.nib == 0xD && !chip8.hiRes) { pFrameTime = curTime; }
+                Chip8Step(&chip8);
+                if (chip8.prevOp.nib == 0xD && !chip8.hiRes) { pFrameTime = curTime; }
                 pCycleTime = curTime;
             }
             if ((curTime - pTimerTime) >= timerThreshold) {
@@ -78,18 +67,17 @@ void run(char* romPath, bool startPaused)
                 pTimerTime = curTime;
             }
 
-            if (chip8.step) { chip8.step--; }
             pOpCode = curOp.code;
         }
 
         updateAudio(&audio);
-        draw(&chip8, delta);
-        // draw_debug(&chip8, curTime, pCycleTime, pFrameTime, delta, curOp.code, pOpCode);
+        // draw(&chip8, delta);
+        draw_debug(&chip8, curTime, pCycleTime, pFrameTime, delta, curOp.code, pOpCode);
         pLoopTime = curTime;
     }
 
     detachAudio(&audio);
-    detatchChip8(&chip8);
+    Chip8Detatch(&chip8);
     CloseAudioDevice();
     CloseWindow();
 }

@@ -30,6 +30,7 @@ typedef struct chip8 {
     // Debug
     bool isPaused;
     uint8_t step;
+    Op prevOp;
 
     // Quirks
     bool resetVF;
@@ -42,9 +43,10 @@ typedef struct chip8 {
 }Chip8;
 
 Chip8 makeChip8();
-void loadROMChip8(Chip8* chip8, const char* romPath);
-void setVersionChip8(Chip8* chip8, Chip8Version version);
-void resetChip8(Chip8* chip8);
-void detatchChip8(Chip8* chip8);
+void Chip8LoadROM(Chip8* chip8, const char* romPath);
+void Chip8SetVersion(Chip8* chip8, Chip8Version version);
+void Chip8Step(Chip8* chip8);
+void Chip8Reset(Chip8* chip8);
+void Chip8Detatch(Chip8* chip8);
 
 #endif

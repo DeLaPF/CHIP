@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "chip8/constants.h"
+#include "chip8/instructions.h"
 
 static void loadFonts(Chip8* chip8)
 {
@@ -66,7 +67,7 @@ Chip8 makeChip8()
 
 // Note: should call reset before using to avoid undefined state
 // (ignore if just created with makeChip8)
-void loadROMChip8(Chip8* chip8, const char* romPath)
+void Chip8LoadROM(Chip8* chip8, const char* romPath)
 {
     printf("Loading ROM %s...\n", romPath);
     loadROM(&chip8->ram, romPath);
@@ -75,7 +76,7 @@ void loadROMChip8(Chip8* chip8, const char* romPath)
 }
 
 // Note: should call reset before using to avoid undefined state
-void setVersionChip8(Chip8* chip8, Chip8Version version)
+void Chip8SetVersion(Chip8* chip8, Chip8Version version)
 {
     switch (version) {
     case CHIP8:
@@ -110,13 +111,31 @@ void setVersionChip8(Chip8* chip8, Chip8Version version)
     }
 }
 
-void resetChip8(Chip8* chip8)
+void Chip8Step(Chip8* chip8)
+{
+    // Fetch
+    Op op = fetchOp(&chip8->cpu, &chip8->ram);
+    // Decode
+    Instruction instruction = decode(&op);
+    // Execute
+    if (!instruction) {
+        printf("Error Unknown Instruction: 0x%04x\n", op.code);
+        printf("Prev OP: 0x%04x\n", chip8->prevOp.code);
+        chip8->isPaused = true;
+    } else {
+        instruction(chip8, &op);
+    }
+
+    chip8->prevOp = op;
+}
+
+void Chip8Reset(Chip8* chip8)
 {
     // TODO: switch to managed memory model and memset all data to zero
     loadFonts(chip8);
 }
 
-void detatchChip8(Chip8* chip8)
+void Chip8Detatch(Chip8* chip8)
 {
     // TODO: handle freeing memory (once switch over heap based mem model)
 }
