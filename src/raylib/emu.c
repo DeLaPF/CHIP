@@ -26,9 +26,11 @@ void run(char* romPath, bool startPaused)
     Audio audio = initAudio();
 
     // Chip-8
-    Chip8 chip8 = initChip8();
+    Chip8 chip8 = makeChip8();
+    // TODO: add method for setting quirks at runtime (config file or args?)
+    setVersionChip8(&chip8, SCHIP_MODERN);
+    loadROMChip8(&chip8, romPath);
     chip8.isPaused = startPaused;
-    setup(&chip8, romPath);
     printf("Setup Complete!\n");
 
     double pCycleTime = -1.0;

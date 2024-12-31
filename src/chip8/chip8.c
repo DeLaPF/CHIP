@@ -4,7 +4,25 @@
 
 #include "chip8/constants.h"
 
-Chip8 initChip8()
+static void loadFonts(Chip8* chip8)
+{
+    // TODO: remove debug prints
+    printf(
+        "Loading Lo Font: 0x%x to 0x%x...\n",
+        LO_FONT_START,
+        LO_FONT_START+LO_FONT_BYTES
+    );
+    loadLoFont(&chip8->ram);
+    printf(
+        "Loading Hi Font: 0x%x to 0x%x...\n",
+        HI_FONT_START,
+        HI_FONT_START+HI_FONT_BYTES
+    );
+    printf("Loading Hi Font...\n");
+    loadHiFont(&chip8->ram);
+}
+
+Chip8 makeChip8()
 {
     Cpu cpu = {
         .registers={0},
@@ -24,7 +42,6 @@ Chip8 initChip8()
         .height=CHIP8_BUFF_HEIGHT,
     };
     Keymap keymap = 0;
-    // TODO: add method for setting quirks at runtime (config file or args?)
     Chip8 chip8 = {
         .cpu=cpu,
         .ram=ram,
@@ -42,59 +59,64 @@ Chip8 initChip8()
         .clipping=true,
         .dispWait=false,
     };
-    // CHIP8
-    // .resetVF=true,
-    // .fromY=true,
-    // .force0=true,
-    // .carry=false,
-    // .increment=true,
-    // .clipping=true,
-    // .dispWait=true,
-
-    // SUPERCHIP (legacy)
-    // .resetVF=false,
-    // .fromY=false,
-    // .force0=false,
-    // .carry=false,
-    // .increment=false,
-    // .clipping=true,
-    // .dispWait=true,
-
-    // SUPERCHIP (modern)
-    // .resetVF=false,
-    // .fromY=false,
-    // .force0=false,
-    // .carry=false,
-    // .increment=false,
-    // .clipping=true,
-    // .dispWait=false,
+    loadFonts(&chip8);
 
     return chip8;
+}
+
+// Note: should call reset before using to avoid undefined state
+// (ignore if just created with makeChip8)
+void loadROMChip8(Chip8* chip8, const char* romPath)
+{
+    printf("Loading ROM %s...\n", romPath);
+    loadROM(&chip8->ram, romPath);
+
+    chip8->cpu.pc = PROG_START;
+}
+
+// Note: should call reset before using to avoid undefined state
+void setVersionChip8(Chip8* chip8, Chip8Version version)
+{
+    switch (version) {
+    case CHIP8:
+        chip8->resetVF=true;
+        chip8->fromY=true;
+        chip8->force0=true;
+        chip8->carry=false;
+        chip8->increment=true;
+        chip8->clipping=true;
+        chip8->dispWait=true;
+        break;
+    case SCHIP_LEGACY:
+        chip8->resetVF=false;
+        chip8->fromY=false;
+        chip8->force0=false;
+        chip8->carry=false;
+        chip8->increment=false;
+        chip8->clipping=true;
+        chip8->dispWait=true;
+        break;
+    case SCHIP_MODERN:
+        chip8->resetVF=false;
+        chip8->fromY=false;
+        chip8->force0=false;
+        chip8->carry=false;
+        chip8->increment=false;
+        chip8->clipping=true;
+        chip8->dispWait=false;
+        break;
+    default:
+        printf("ERROR [CHIP8 INIT]: Unknown version '%d'", version);
+    }
+}
+
+void resetChip8(Chip8* chip8)
+{
+    // TODO: switch to managed memory model and memset all data to zero
+    loadFonts(chip8);
 }
 
 void detatchChip8(Chip8* chip8)
 {
     // TODO: handle freeing memory (once switch over heap based mem model)
-}
-
-void setup(Chip8* chip8, const char* romPath)
-{
-    printf(
-        "Loading Lo Font: 0x%x to 0x%x...\n",
-        LO_FONT_START,
-        LO_FONT_START+LO_FONT_BYTES
-    );
-    loadLoFont(&chip8->ram);
-    printf(
-        "Loading Hi Font: 0x%x to 0x%x...\n",
-        HI_FONT_START,
-        HI_FONT_START+HI_FONT_BYTES
-    );
-    printf("Loading Hi Font...\n");
-    loadHiFont(&chip8->ram);
-
-    printf("Loading ROM %s...\n", romPath);
-    loadROM(&chip8->ram, romPath);
-
-    chip8->cpu.pc = PROG_START;
 }

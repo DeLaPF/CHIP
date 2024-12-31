@@ -9,6 +9,12 @@
 #include "keymap.h"
 #include "vram.h"
 
+typedef enum version {
+    CHIP8,
+    SCHIP_LEGACY,
+    SCHIP_MODERN
+}Chip8Version;
+
 typedef struct chip8 {
     // Hardware
     Cpu cpu;
@@ -34,8 +40,10 @@ typedef struct chip8 {
     bool dispWait;
 }Chip8;
 
-Chip8 initChip8();
+Chip8 makeChip8();
+void loadROMChip8(Chip8* chip8, const char* romPath);
+void setVersionChip8(Chip8* chip8, Chip8Version version);
+void resetChip8(Chip8* chip8);
 void detatchChip8(Chip8* chip8);
-void setup(Chip8* chip8, const char* romPath);
 
 #endif
