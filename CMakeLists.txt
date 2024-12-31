@@ -8,26 +8,17 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 set(SOURCES
     src/main.c
-	src/audio.c
-	src/chip8.c
-	src/constants.c
-    src/cpu.c
-	src/display.c
-	src/instructions.c
-    src/keyboard.c
-    src/ram.c
+
+    src/raylib/audio.c
+    src/chip8/chip8.c
+    src/chip8/constants.c
+    src/chip8/cpu.c
+    src/chip8/display.c
+    src/chip8/instructions.c
+    src/chip8/keyboard.c
+    src/chip8/ram.c
 )
-set(HEADER_FILES
-	src/audio.h
-	src/chip8.h
-    src/constants.h
-	src/cpu.h
-	src/display.h
-	src/instructions.h
-    src/keyboard.h
-	src/ram.h
-)
-add_executable(${PROJECT_NAME} ${SOURCES} ${HEADER_FILES})
+add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 
 add_subdirectory(third_party/raylib)

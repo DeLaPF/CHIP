@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "chip8.h"
-#include "instructions.h"
+#include "chip8/chip8.h"
+#include "chip8/instructions.h"
 
 #include "raylib.h"
 

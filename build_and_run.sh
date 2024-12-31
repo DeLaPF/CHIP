@@ -1,26 +1,40 @@
 #!/usr/bin/env bash
 
-# Check if in repo root 
+BIN_NAME="CHIP-8"
+
+# Check if in repo root
 if [ ! -f CMakeLists.txt ]; then
     echo "[ERROR]: ./CMakeLists.txt not found (run from of repo's root)"
     exit 1
 fi
 
+# Parse flags
+build_type="default"
+run=false
+while getopts 'b:r' flag; do
+    case "${flag}" in
+        b) build_type="${OPTARG}" ;;
+        r) run=true ;;
+        *) print_usage
+           exit 1 ;;
+    esac
+done
+
 # Select build type
 BIN_PATH=""
-if [ ${1:0:1} == "d" ]; then
-    BIN_PATH="Debug/bin"
-    cmake -B ./Debug -S. && cmake --build Debug
-elif [ ${1:0:1} == "p" ]; then
-    # Build with profiling enabled
-    BIN_PATH="Profile/bin"
-    cmake -DCMAKE_C_FLAGS=-pg -B./Profile -S. && cmake --build ./Profile
+if [ ${build_type:0:1} == "d" ]; then
+    BIN_PATH="builds/linux/default/bin"
+    cmake -B ./builds/linux/default -S. && \
+        cmake --build builds/linux/default
+elif [ ${build_type:0:1} == "p" ]; then
+    # Profiling enabled
+    BIN_PATH="builds/linux/profile/bin"
+    cmake -DCMAKE_C_FLAGS=-pg -B./builds/linux/profile -S. && \
+        cmake --build ./builds/linux/profile
 else
     echo "[ERROR]: '$1' Unsupported build type"
     exit 1
 fi
-
-echo $BIN_PATH
 
 # Run with specified ROM to generate gmon.out
 if [ -f "$2" ]; then
@@ -38,4 +52,3 @@ if [ ${1:0:1} == "p" ]; then
         echo "[ERROR]: gmon.out missing"
         exit 1
     fi
-fi

@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "audio.h"
+#include "raylib/audio.h"
 #include "cpu.h"
 #include "ram.h"
 #include "display.h"

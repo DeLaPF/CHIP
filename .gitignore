@@ -1,17 +1,7 @@
-Debug/
-Profile/
-Release/
-x86_64/
+.cache/
+
+builds/
+compile_commands.json
 
 gmon.out
 prof.png
-
-CMakeFiles/
-CMakeCache.txt
-Makefile
-cmake_install.cmake
-compile_commands.json
-CPackConfig.cmake
-CPackSourceConfig.cmake
-
-.cache/
