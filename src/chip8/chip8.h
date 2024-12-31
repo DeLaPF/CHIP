@@ -9,6 +9,7 @@
 #include "keymap.h"
 #include "vram.h"
 
+// TODO: implement [XO-Chip](https://johnearnest.github.io/Octo/docs/XO-ChipSpecification.html)
 typedef enum version {
     CHIP8,
     SCHIP_LEGACY,
