@@ -9,7 +9,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(SOURCES
     src/main.c
 
-    src/raylib/audio.c
     src/chip8/chip8.c
     src/chip8/constants.c
     src/chip8/cpu.c
@@ -17,6 +16,9 @@ set(SOURCES
     src/chip8/instructions.c
     src/chip8/keyboard.c
     src/chip8/ram.c
+
+    src/raylib/audio.c
+    src/raylib/emu.c
 )
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE src)

@@ -1,5 +1,5 @@
-#ifndef AUDIO_H
-#define AUDIO_H
+#ifndef RAYLIB_AUDIO_H
+#define RAYLIB_AUDIO_H
 
 #include <stdbool.h>
 

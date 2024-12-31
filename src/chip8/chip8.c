@@ -2,8 +2,7 @@
 
 #include <stdio.h>
 
-#include "constants.h"
-
+#include "chip8/constants.h"
 
 Chip8 initChip8()
 {

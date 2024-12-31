@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+// TODO: remove all raylib dependencies (handle in raylib/emu.c)
 #include "raylib/audio.h"
 #include "cpu.h"
 #include "ram.h"
