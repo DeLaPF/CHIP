@@ -39,6 +39,8 @@ Chip8 makeChip8()
     };
     VRAM vram = {
         .pixelBuff={0},
+    };
+    Chip8Display display = {
         .width=CHIP8_BUFF_WIDTH,
         .height=CHIP8_BUFF_HEIGHT,
     };
@@ -47,6 +49,7 @@ Chip8 makeChip8()
         .cpu=cpu,
         .ram=ram,
         .vram=vram,
+        .display=display,
         .keymap=keymap,
         .hiRes=false,
         .flagRegisters={0},

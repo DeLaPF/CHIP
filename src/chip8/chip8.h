@@ -16,12 +16,18 @@ typedef enum version {
     SCHIP_MODERN
 }Chip8Version;
 
+typedef struct display {
+    uint16_t width;
+    uint16_t height;
+}Chip8Display;
+
 typedef struct chip8 {
     // Hardware
     Cpu cpu;
     RAM ram;
     VRAM vram;
     Keymap keymap;
+    Chip8Display display;
 
     // SuperChip
     bool hiRes;

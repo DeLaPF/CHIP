@@ -6,7 +6,7 @@
 
 void clearScreen(Chip8* chip8, Op* op)
 {
-    for (int i = 0; i < chip8->vram.width*chip8->vram.height; i++) {
+    for (int i = 0; i < chip8->display.width*chip8->display.height; i++) {
         VRAMSet(&chip8->vram, i, 0);
     }
 }
@@ -231,8 +231,8 @@ void loadMemory(Chip8* chip8, Op* op)
 
 void updateBuffer(Chip8* chip8, Op* op)
 {
-    uint8_t vx = chip8->cpu.registers[op->x]%chip8->vram.width;
-    uint8_t vy = chip8->cpu.registers[op->y]%chip8->vram.height;
+    uint8_t vx = chip8->cpu.registers[op->x]%chip8->display.width;
+    uint8_t vy = chip8->cpu.registers[op->y]%chip8->display.height;
     chip8->cpu.registers[VF] = 0;
 
     // SuperChip
@@ -242,9 +242,9 @@ void updateBuffer(Chip8* chip8, Op* op)
     for (int yOff = 0; yOff < op->n; yOff++) {
         int py = vy + yOff;
         if (chip8->clipping) {
-            if (py < 0 || py >= chip8->vram.height) { continue; }
+            if (py < 0 || py >= chip8->display.height) { continue; }
         } else {
-            py %= chip8->vram.height;
+            py %= chip8->display.height;
         }
 
         uint16_t spriteRow = chip8->ram.heap[chip8->cpu.idx+yOff];
@@ -260,12 +260,12 @@ void updateBuffer(Chip8* chip8, Op* op)
         for (int xOff = 0; xOff < rowWidth; xOff++) {
             int px = vx + xOff;
             if (chip8->clipping) {
-                if (px < 0 || px >= chip8->vram.width) { continue; }
+                if (px < 0 || px >= chip8->display.width) { continue; }
             } else {
-                px %= chip8->vram.width;
+                px %= chip8->display.width;
             }
 
-            int pInd = py*chip8->vram.width+px;
+            int pInd = py*chip8->display.width+px;
             if (spriteRow&rowMask) {
                 uint8_t pVal = VRAMGet(&chip8->vram, pInd);
                 if (pVal) {
@@ -282,11 +282,11 @@ void updateBuffer(Chip8* chip8, Op* op)
 void scrollDN(Chip8* chip8, Op* op)
 {
     int shift = op->n;
-    for (int py = chip8->vram.height-1; py >= 0; py--) {
-        for (int px = 0; px < chip8->vram.width; px++) {
-            int pInd = py*chip8->vram.width+px;
+    for (int py = chip8->display.height-1; py >= 0; py--) {
+        for (int px = 0; px < chip8->display.width; px++) {
+            int pInd = py*chip8->display.width+px;
             if (py > shift) {
-                int pShiftInd = (py-shift)*chip8->vram.width+px;
+                int pShiftInd = (py-shift)*chip8->display.width+px;
                 VRAMSet(&chip8->vram, pInd, VRAMGet(&chip8->vram, pShiftInd));
             } else {
                 VRAMSet(&chip8->vram, pInd, 0);
@@ -298,9 +298,9 @@ void scrollDN(Chip8* chip8, Op* op)
 void scrollR(Chip8* chip8, Op* op)
 {
     int shift = 4;
-    for (int py = 0; py < chip8->vram.height; py++) {
-        for (int px = chip8->vram.width-1; px >= 0; px--) {
-            int pInd = py*chip8->vram.width+px;
+    for (int py = 0; py < chip8->display.height; py++) {
+        for (int px = chip8->display.width-1; px >= 0; px--) {
+            int pInd = py*chip8->display.width+px;
             if (px > shift) {
                 VRAMSet(&chip8->vram, pInd, VRAMGet(&chip8->vram, pInd-shift));
             } else {
@@ -313,10 +313,10 @@ void scrollR(Chip8* chip8, Op* op)
 void scrollL(Chip8* chip8, Op* op)
 {
     int shift = 4;
-    for (int py = 0; py < chip8->vram.height; py++) {
-        for (int px = 0; px < chip8->vram.width; px++) {
-            int pInd = py*chip8->vram.width+px;
-            if (px < chip8->vram.width-shift) {
+    for (int py = 0; py < chip8->display.height; py++) {
+        for (int px = 0; px < chip8->display.width; px++) {
+            int pInd = py*chip8->display.width+px;
+            if (px < chip8->display.width-shift) {
                 VRAMSet(&chip8->vram, pInd, VRAMGet(&chip8->vram, pInd+shift));
             } else {
                 VRAMSet(&chip8->vram, pInd, 0);
@@ -328,15 +328,15 @@ void scrollL(Chip8* chip8, Op* op)
 void loRes(Chip8* chip8, Op* op)
 {
     chip8->hiRes = false;
-    chip8->vram.width = CHIP8_BUFF_WIDTH;
-    chip8->vram.height = CHIP8_BUFF_HEIGHT;
+    chip8->display.width = CHIP8_BUFF_WIDTH;
+    chip8->display.height = CHIP8_BUFF_HEIGHT;
 }
 
 void hiRes(Chip8* chip8, Op* op)
 {
     chip8->hiRes = true;
-    chip8->vram.width = SUPER_CHIP_BUFF_WIDTH;
-    chip8->vram.height = SUPER_CHIP_BUFF_HEIGHT;
+    chip8->display.width = SUPER_CHIP_BUFF_WIDTH;
+    chip8->display.height = SUPER_CHIP_BUFF_HEIGHT;
 }
 
 void setIdxToHiChar(Chip8* chip8, Op* op)
