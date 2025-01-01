@@ -1,4 +1,6 @@
+#include <chrono>
 #include <iostream>
+#include <thread>
 
 #include "glad/gl.h"
 #include "SDL.h"
@@ -11,6 +13,9 @@ extern "C" {
     #include "chip8/chip8.h"
 }
 
+const int framesPerSecond = 60;
+const int defaultCyclesPerFrame = 80;
+
 // TODO: maybe shaders should be hardcoded into the libraries that use them at compile time
 // Although it is nice to be able to change things on the fly if necessary
 // Maybe define some default shader and a relative search path (if found override default)?
@@ -22,12 +27,15 @@ void app(SDL_Window* window, char* romPath)
     auto bitmap0 = bfb0.getBitmap();
     TextureWindow bfbDisp0("Display 0", bfb0.getTextureId());
 
-    // TODO: handle timers, cycle timing, sound, and kb input
     Chip8 chip8 = makeChip8();
     Chip8LoadROM(&chip8, romPath);
 
+    int cyclesPerFrame = defaultCyclesPerFrame;
+
     // Main loop
     while (!eH.windowShouldClose()) {
+        unsigned int frameStart = SDL_GetTicks();
+        // TODO: handle kb input
         eH.handleEvents();
         newImguiFrame();
 
@@ -36,7 +44,18 @@ void app(SDL_Window* window, char* romPath)
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        Chip8Step(&chip8);
+        for (int i = 0; i < cyclesPerFrame; i++) {
+            if (chip8.isPaused && chip8.step == 0) { break; }
+            // TODO: if display wait is enabled, break on draw instruction
+            Chip8Step(&chip8);
+            if (chip8.step > 0) { chip8.step--; }
+        }
+
+        // TODO: handle sound
+        if (chip8.ram.delayTimer) { chip8.ram.delayTimer--; }
+        if (chip8.ram.soundTimer) { chip8.ram.soundTimer--; }
+
+        // TODO: only update if received display instruction in previous cycles
         // Draw pattern on bitmap(s)
         for (auto i = 0; i < bitmap0->size(); i++) { bitmap0->at(i) = chip8.vram.pixelBuff[i]; }
         bfb0.updateBitmap();
@@ -47,6 +66,14 @@ void app(SDL_Window* window, char* romPath)
 
         renderImguiFrame();
         SDL_GL_SwapWindow(window);
+
+        unsigned int frameTime = SDL_GetTicks() - frameStart;
+        int waitTime = (1000/framesPerSecond) - frameTime;
+        if (waitTime > 0) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
+        } else if (waitTime < 0) {
+            std::cout << "running slow!!! (" << frameTime << "ms per frame)" << std::endl;
+        }
     }
 
     Chip8Destroy(&chip8);
