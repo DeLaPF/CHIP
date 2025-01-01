@@ -10,11 +10,12 @@ VRAM makeVRAM(size_t numPixels)
         .pixelBuff=(uint32_t*)malloc(numIndices*sizeof(uint32_t)),
         .size=numIndices
     };
+    VRAMInit(&vram);
 
     return vram;
 }
 
-void VRAMZero(VRAM* vram)
+void VRAMInit(VRAM* vram)
 {
     memset(vram->pixelBuff, 0, vram->size*sizeof(uint32_t));
 }

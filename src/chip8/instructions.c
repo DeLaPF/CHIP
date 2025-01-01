@@ -6,7 +6,7 @@
 
 void clearScreen(Chip8* chip8, Op* op)
 {
-    VRAMZero(&chip8->vram);
+    VRAMInit(&chip8->vram);
 }
 
 void subRet(Chip8* chip8, Op* op)

@@ -12,7 +12,7 @@ typedef struct vram {
 }VRAM;
 
 VRAM makeVRAM(size_t numPixels);
-void VRAMZero(VRAM* vram);
+void VRAMInit(VRAM* vram);
 void VRAMDestroy(VRAM* vram);
 
 uint8_t VRAMGet(VRAM* vram, int ind);

@@ -1,8 +1,40 @@
 #include "ram.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "constants.h"
+
+RAM makeRAM(size_t heap_s)
+{
+    RAM ram = {
+        .delayTimer=0,
+        .soundTimer=0,
+        .stack={0},
+        .heap=(uint8_t*)malloc(heap_s),
+        .heap_s=heap_s
+    };
+    RAMInit(&ram);
+
+    return ram;
+}
+
+void RAMInit(RAM* ram)
+{
+    memset(ram->heap, 0, ram->heap_s);
+    loadLoFont(ram);
+    loadHiFont(ram);
+
+    ram->delayTimer=0;
+    ram->soundTimer=0;
+    memset(ram->stack, 0, RAM_STACK_SIZE*sizeof(uint16_t));
+}
+
+void RAMDestroy(RAM* ram)
+{
+    free(ram->heap);
+}
 
 void loadLoFont(RAM* ram)
 {
@@ -27,22 +59,4 @@ void loadROM(RAM* ram, const char* romPath)
     rewind(fileptr);
     fread(buffer, filelen, 1, fileptr);
     fclose(fileptr);
-}
-
-void RAMInit(RAM* ram)
-{
-    // TODO: remove debug prints
-    printf(
-        "Loading Lo Font: 0x%x to 0x%x...\n",
-        LO_FONT_START,
-        LO_FONT_START+LO_FONT_BYTES
-    );
-    loadLoFont(ram);
-    printf(
-        "Loading Hi Font: 0x%x to 0x%x...\n",
-        HI_FONT_START,
-        HI_FONT_START+HI_FONT_BYTES
-    );
-    printf("Loading Hi Font...\n");
-    loadHiFont(ram);
 }

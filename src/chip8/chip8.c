@@ -13,23 +13,12 @@ Chip8 makeChip8()
         .sp=0,
         .pc=0,
     };
-    RAM ram = {
-        .delayTimer=0,
-        .soundTimer=0,
-        .stack={0},
-        .heap={0},
-    };
-    Chip8Display display = {
-        .width=CHIP8_BUFF_WIDTH,
-        .height=CHIP8_BUFF_HEIGHT,
-    };
-    Keymap keymap = 0;
     Chip8 chip8 = {
         .cpu=cpu,
-        .ram=ram,
+        .ram=makeRAM(4096),
         .vram=makeVRAM(SUPER_CHIP_BUFF_WIDTH*SUPER_CHIP_BUFF_HEIGHT),
-        .display=display,
-        .keymap=keymap,
+        .display={ .width=CHIP8_BUFF_WIDTH, .height=CHIP8_BUFF_HEIGHT },
+        .keymap=0,
         .hiRes=false,
         .flagRegisters={0},
         .isPaused=false,
@@ -42,8 +31,6 @@ Chip8 makeChip8()
         .clipping=true,
         .dispWait=false,
     };
-    RAMInit(&chip8.ram);
-    VRAMZero(&chip8.vram);
 
     return chip8;
 }
@@ -114,13 +101,12 @@ void Chip8Step(Chip8* chip8)
 
 void Chip8Reset(Chip8* chip8)
 {
-    // TODO: switch to managed memory model and memset all data to zero
     RAMInit(&chip8->ram);
-    VRAMZero(&chip8->vram);
+    VRAMInit(&chip8->vram);
 }
 
 void Chip8Detatch(Chip8* chip8)
 {
-    // TODO: handle freeing memory (once switch over heap based mem model)
+    RAMDestroy(&chip8->ram);
     VRAMDestroy(&chip8->vram);
 }
