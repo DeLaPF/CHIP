@@ -5,24 +5,6 @@
 #include "chip8/constants.h"
 #include "chip8/instructions.h"
 
-static void loadFonts(Chip8* chip8)
-{
-    // TODO: remove debug prints
-    printf(
-        "Loading Lo Font: 0x%x to 0x%x...\n",
-        LO_FONT_START,
-        LO_FONT_START+LO_FONT_BYTES
-    );
-    loadLoFont(&chip8->ram);
-    printf(
-        "Loading Hi Font: 0x%x to 0x%x...\n",
-        HI_FONT_START,
-        HI_FONT_START+HI_FONT_BYTES
-    );
-    printf("Loading Hi Font...\n");
-    loadHiFont(&chip8->ram);
-}
-
 Chip8 makeChip8()
 {
     Cpu cpu = {
@@ -37,9 +19,6 @@ Chip8 makeChip8()
         .stack={0},
         .heap={0},
     };
-    VRAM vram = {
-        .pixelBuff={0},
-    };
     Chip8Display display = {
         .width=CHIP8_BUFF_WIDTH,
         .height=CHIP8_BUFF_HEIGHT,
@@ -48,7 +27,7 @@ Chip8 makeChip8()
     Chip8 chip8 = {
         .cpu=cpu,
         .ram=ram,
-        .vram=vram,
+        .vram=makeVRAM(SUPER_CHIP_BUFF_WIDTH*SUPER_CHIP_BUFF_HEIGHT),
         .display=display,
         .keymap=keymap,
         .hiRes=false,
@@ -63,7 +42,8 @@ Chip8 makeChip8()
         .clipping=true,
         .dispWait=false,
     };
-    loadFonts(&chip8);
+    RAMInit(&chip8.ram);
+    VRAMZero(&chip8.vram);
 
     return chip8;
 }
@@ -135,10 +115,12 @@ void Chip8Step(Chip8* chip8)
 void Chip8Reset(Chip8* chip8)
 {
     // TODO: switch to managed memory model and memset all data to zero
-    loadFonts(chip8);
+    RAMInit(&chip8->ram);
+    VRAMZero(&chip8->vram);
 }
 
 void Chip8Detatch(Chip8* chip8)
 {
     // TODO: handle freeing memory (once switch over heap based mem model)
+    VRAMDestroy(&chip8->vram);
 }

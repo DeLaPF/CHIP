@@ -28,3 +28,21 @@ void loadROM(RAM* ram, const char* romPath)
     fread(buffer, filelen, 1, fileptr);
     fclose(fileptr);
 }
+
+void RAMInit(RAM* ram)
+{
+    // TODO: remove debug prints
+    printf(
+        "Loading Lo Font: 0x%x to 0x%x...\n",
+        LO_FONT_START,
+        LO_FONT_START+LO_FONT_BYTES
+    );
+    loadLoFont(ram);
+    printf(
+        "Loading Hi Font: 0x%x to 0x%x...\n",
+        HI_FONT_START,
+        HI_FONT_START+HI_FONT_BYTES
+    );
+    printf("Loading Hi Font...\n");
+    loadHiFont(ram);
+}

@@ -6,9 +6,7 @@
 
 void clearScreen(Chip8* chip8, Op* op)
 {
-    for (int i = 0; i < chip8->display.width*chip8->display.height; i++) {
-        VRAMSet(&chip8->vram, i, 0);
-    }
+    VRAMZero(&chip8->vram);
 }
 
 void subRet(Chip8* chip8, Op* op)

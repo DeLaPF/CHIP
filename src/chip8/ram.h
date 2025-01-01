@@ -12,6 +12,9 @@ typedef struct ram {
 
 void loadLoFont(RAM* ram);
 void loadHiFont(RAM* ram);
+
 void loadROM(RAM* ram, const char* romPath);
+
+void RAMInit(RAM* ram);
 
 #endif
