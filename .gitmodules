@@ -1,3 +1,6 @@
 [submodule "deps/raylib"]
 	path = deps/raylib
 	url = https://github.com/raysan5/raylib.git
+[submodule "deps/bmp_fb"]
+	path = deps/bmp_fb
+	url = https://github.com/DeLaPF/bmp_fb.git

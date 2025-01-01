@@ -3,5 +3,7 @@
 builds/
 compile_commands.json
 
+imgui.ini
+
 gmon.out
 prof.png
