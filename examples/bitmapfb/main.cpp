@@ -24,9 +24,12 @@ void app(SDL_Window* window, char* romPath)
 {
     SDLEventHandler eH(window);
     // TODO: raise error if can't load shader instead of just silently aborting
-    BitmapFramebuffer bfb0(64, 32, 400, 400, BitmapFramebuffer::SINGLE_BIT);
-    auto bitmap0 = bfb0.getBitmap();
-    TextureWindow bfbDisp0("Display 0", bfb0.getTextureId());
+    BitmapFramebuffer bfbLo(64, 32, 400, 400, BitmapFramebuffer::SINGLE_BIT);
+    auto bitmapLo = bfbLo.getBitmap();
+    BitmapFramebuffer bfbHi(128, 64, 400, 400, BitmapFramebuffer::SINGLE_BIT);
+    auto bitmapHi = bfbHi.getBitmap();
+    TextureWindow chip8Dislay("CHIP");
+    BitmapFramebuffer* curBFB = &bfbLo;
 
     Chip8 chip8 = makeChip8();
     Chip8LoadROM(&chip8, romPath);
@@ -57,13 +60,20 @@ void app(SDL_Window* window, char* romPath)
         if (chip8.ram.soundTimer) { chip8.ram.soundTimer--; }
 
         // TODO: only update if received display instruction in previous cycles
-        // Draw pattern on bitmap(s)
-        for (auto i = 0; i < bitmap0->size(); i++) { bitmap0->at(i) = chip8.vram.pixelBuff[i]; }
-        bfb0.updateBitmap();
-
-        bfbDisp0.drawWindow();
-        if (bfbDisp0.didResize()) { bfb0.resizeRenderDim(bfbDisp0.width(), bfbDisp0.height()); }
-        bfb0.render();
+        if (chip8.hiRes) {
+            curBFB = &bfbHi;
+            for (auto i = 0; i < bitmapHi->size(); i++) { bitmapHi->at(i) = chip8.vram.pixelBuff[i]; }
+        } else {
+            curBFB = &bfbLo;
+            for (auto i = 0; i < bitmapLo->size(); i++) { bitmapLo->at(i) = chip8.vram.pixelBuff[i]; }
+        }
+        curBFB->updateBitmap();
+        chip8Dislay.drawWindow(curBFB->getTextureId());
+        if (chip8Dislay.didResize()) {
+            bfbLo.resizeRenderDim(chip8Dislay.width(), chip8Dislay.height());
+            bfbHi.resizeRenderDim(chip8Dislay.width(), chip8Dislay.height());
+        }
+        curBFB->render();
 
         renderImguiFrame();
         SDL_GL_SwapWindow(window);
