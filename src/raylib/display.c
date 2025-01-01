@@ -41,7 +41,7 @@ void draw(Chip8* chip8, double delta)
         };
         for (int y = 0; y < chip8->vram.height; y++) {
             for (int x = 0; x < chip8->vram.width; x++) {
-                if (chip8->vram.pixelBuff[y*chip8->vram.width+x]) {
+                if (VRAMGet(&chip8->vram, y*chip8->vram.width+x)) {
                     DrawRectangle(
                         pixelBuffOrigin.x+(x*buffPixelSize),
                         pixelBuffOrigin.y+(y*buffPixelSize),
@@ -93,7 +93,7 @@ void draw_debug(
         };
         for (int y = 0; y < chip8->vram.height; y++) {
             for (int x = 0; x < chip8->vram.width; x++) {
-                if (chip8->vram.pixelBuff[y*chip8->vram.width+x]) {
+                if (VRAMGet(&chip8->vram, y*chip8->vram.width+x)) {
                     DrawRectangle(
                         pixelBuffOrigin.x+(x*buffPixelSize),
                         pixelBuffOrigin.y+(y*buffPixelSize),

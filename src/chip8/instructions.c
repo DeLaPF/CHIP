@@ -7,7 +7,7 @@
 void clearScreen(Chip8* chip8, Op* op)
 {
     for (int i = 0; i < chip8->vram.width*chip8->vram.height; i++) {
-        chip8->vram.pixelBuff[i] = 0;
+        VRAMSet(&chip8->vram, i, 0);
     }
 }
 
@@ -267,11 +267,12 @@ void updateBuffer(Chip8* chip8, Op* op)
 
             int pInd = py*chip8->vram.width+px;
             if (spriteRow&rowMask) {
-                if (chip8->vram.pixelBuff[pInd]) {
+                uint8_t pVal = VRAMGet(&chip8->vram, pInd);
+                if (pVal) {
                     chip8->cpu.registers[VF] = 1;
                 }
 
-                chip8->vram.pixelBuff[pInd] ^= 1;
+                VRAMSet(&chip8->vram, pInd, pVal^1);
             }
             rowMask >>= 1;
         }
@@ -286,9 +287,9 @@ void scrollDN(Chip8* chip8, Op* op)
             int pInd = py*chip8->vram.width+px;
             if (py > shift) {
                 int pShiftInd = (py-shift)*chip8->vram.width+px;
-                chip8->vram.pixelBuff[pInd] = chip8->vram.pixelBuff[pShiftInd];
+                VRAMSet(&chip8->vram, pInd, VRAMGet(&chip8->vram, pShiftInd));
             } else {
-                chip8->vram.pixelBuff[pInd] = 0;
+                VRAMSet(&chip8->vram, pInd, 0);
             }
         }
     }
@@ -301,9 +302,9 @@ void scrollR(Chip8* chip8, Op* op)
         for (int px = chip8->vram.width-1; px >= 0; px--) {
             int pInd = py*chip8->vram.width+px;
             if (px > shift) {
-                chip8->vram.pixelBuff[pInd] = chip8->vram.pixelBuff[pInd-shift];
+                VRAMSet(&chip8->vram, pInd, VRAMGet(&chip8->vram, pInd-shift));
             } else {
-                chip8->vram.pixelBuff[pInd] = 0;
+                VRAMSet(&chip8->vram, pInd, 0);
             }
         }
     }
@@ -316,9 +317,9 @@ void scrollL(Chip8* chip8, Op* op)
         for (int px = 0; px < chip8->vram.width; px++) {
             int pInd = py*chip8->vram.width+px;
             if (px < chip8->vram.width-shift) {
-                chip8->vram.pixelBuff[pInd] = chip8->vram.pixelBuff[pInd+shift];
+                VRAMSet(&chip8->vram, pInd, VRAMGet(&chip8->vram, pInd+shift));
             } else {
-                chip8->vram.pixelBuff[pInd] = 0;
+                VRAMSet(&chip8->vram, pInd, 0);
             }
         }
     }

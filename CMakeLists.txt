@@ -15,6 +15,7 @@ set(SOURCES
     src/chip8/instructions.c
     src/chip8/keymap.c
     src/chip8/ram.c
+    src/chip8/vram.c
 
     src/raylib/audio.c
     src/raylib/display.c
