@@ -2,8 +2,8 @@
 
 #include <stdio.h>
 
-#include "chip8/constants.h"
-#include "chip8/instructions.h"
+#include "constants.h"
+#include "instructions.h"
 
 Chip8 makeChip8()
 {

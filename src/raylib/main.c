@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "raylib/emu.h"
+#include "emu.h"
 
 int main(int argc, char *argv[])
 {
@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     bool startPaused = argc > 2 && argv[2][0] == 'p';
 
     // Init rand to current time
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
 
     run(romPath, startPaused);
 
