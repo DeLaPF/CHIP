@@ -4,8 +4,7 @@
 #include <stdint.h>
 
 typedef struct vram {
-    // TODO: one pixel per bit instead of per byte
-    uint8_t pixelBuff[8192];
+    uint32_t pixelBuff[256];
 
     // TODO: maybe it doesn't make the most sense to have this here?
     uint16_t width;
