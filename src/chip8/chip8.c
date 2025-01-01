@@ -108,3 +108,10 @@ void Chip8Step(Chip8* chip8)
 
     chip8->prevOp = op;
 }
+
+void Chip8LoadFlagRegisters(Chip8* chip8, uint8_t* regVals)
+{
+    for (int i = 0; i < CHIP8_NUM_FLAG_REGISTERS; i++) {
+        chip8->flagRegisters[i] = regVals[i];
+    }
+}

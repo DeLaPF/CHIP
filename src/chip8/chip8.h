@@ -9,6 +9,8 @@
 #include "keymap.h"
 #include "vram.h"
 
+#define CHIP8_NUM_FLAG_REGISTERS 16
+
 // TODO: implement [XO-Chip](https://johnearnest.github.io/Octo/docs/XO-ChipSpecification.html)
 typedef enum version {
     CHIP8,
@@ -31,7 +33,7 @@ typedef struct chip8 {
 
     // SuperChip
     bool hiRes;
-    uint8_t flagRegisters[16];
+    uint8_t flagRegisters[CHIP8_NUM_FLAG_REGISTERS];
 
     // Debug
     bool isPaused;
@@ -55,5 +57,7 @@ void Chip8Destroy(Chip8* chip8);
 void Chip8LoadROM(Chip8* chip8, const char* romPath);
 void Chip8SetVersion(Chip8* chip8, Chip8Version version);
 void Chip8Step(Chip8* chip8);
+
+void Chip8LoadFlagRegisters(Chip8* chip8, uint8_t* regVals);
 
 #endif
