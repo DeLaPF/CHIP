@@ -8,10 +8,11 @@
 #include "bitmap_fb.hpp"
 #include "imgui_gl.hpp"
 #include "sdl_gl.hpp"
-
 extern "C" {
     #include "chip8/chip8.h"
 }
+
+#include "keyboard.hpp"
 
 const int framesPerSecond = 60;
 const int defaultCyclesPerFrame = 80;
@@ -35,8 +36,8 @@ void app(SDL_Window* window, char* romPath)
     // Main loop
     while (!eH.windowShouldClose()) {
         unsigned int frameStart = SDL_GetTicks();
-        // TODO: handle kb input
         eH.handleEvents();
+        updateKeymap(eH, chip8);
         newImguiFrame();
 
         // Clear main screen
