@@ -277,6 +277,16 @@ void updateBuffer(Chip8* chip8, Op* op)
     }
 }
 
+void haltEmu(Chip8* chip8, Op* op)
+{
+    chip8->isPaused = true;
+}
+
+void exitEmu(Chip8* chip8, Op* op)
+{
+    chip8->isPaused = true;
+}
+
 void scrollDN(Chip8* chip8, Op* op)
 {
     int shift = op->n;
@@ -364,6 +374,8 @@ Instruction decode(Op* op)
             return scrollDN;
         }
         switch (op->nn) {
+        case 0x00:
+            return haltEmu;
         case 0xE0:
             return clearScreen;
         case 0xEE:
@@ -372,6 +384,8 @@ Instruction decode(Op* op)
             return scrollR;
         case 0xFC:
             return scrollL;
+        case 0xFD:
+            return exitEmu;
         case 0xFE:
             return loRes;
         case 0xFF:

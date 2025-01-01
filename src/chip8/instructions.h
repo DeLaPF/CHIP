@@ -43,6 +43,8 @@ void loadMemory(Chip8* chip8, Op* op);          // FX65 (load memory from idx in
 void updateBuffer(Chip8* chip8, Op* op);        // DXYN (display/draw)
 
 // SuperChip
+void haltEmu(Chip8* chip8, Op* op);             // 0000 (halt emulator)
+void exitEmu(Chip8* chip8, Op* op);             // 00FD (exit emulator)
 void scrollDN(Chip8* chip8, Op* op);            // 00CN (scroll down by n px)
 void scrollR(Chip8* chip8, Op* op);             // 00FB (scroll right by 4 px)
 void scrollL(Chip8* chip8, Op* op);             // 00FC (scroll left by 4 px)
