@@ -7,10 +7,9 @@ set(CMAKE_BUILD_TYPE DEBUG)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
-    set(CHIP8_IS_MAIN TRUE)
+    # TODO: enable options for building different examples
     add_subdirectory(deps/raylib)
-else()
-    set(CHIP8_IS_MAIN FALSE)
+    add_subdirectory(examples/raylib)
 endif()
 
-add_subdirectory(src chip)
+add_subdirectory(src)
