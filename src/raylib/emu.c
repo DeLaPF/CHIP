@@ -15,6 +15,7 @@ const double cycleThreshold = 1 / 700.0;
 const double frameThreshold = 1 / 120.0;
 const double timerThreshold = 1 / 60.0;
 
+// TODO: save and load flagRegisters
 void run(char* romPath, bool startPaused)
 {
     // Setup raylib audio and window
@@ -77,7 +78,7 @@ void run(char* romPath, bool startPaused)
     }
 
     detachAudio(&audio);
-    Chip8Detatch(&chip8);
+    Chip8Destroy(&chip8);
     CloseAudioDevice();
     CloseWindow();
 }

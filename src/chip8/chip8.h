@@ -23,7 +23,7 @@ typedef struct display {
 
 typedef struct chip8 {
     // Hardware
-    Cpu cpu;
+    CPU cpu;
     RAM ram;
     VRAM vram;
     Keymap keymap;
@@ -49,10 +49,11 @@ typedef struct chip8 {
 }Chip8;
 
 Chip8 makeChip8();
+void Chip8Init(Chip8* chip8);
+void Chip8Destroy(Chip8* chip8);
+
 void Chip8LoadROM(Chip8* chip8, const char* romPath);
 void Chip8SetVersion(Chip8* chip8, Chip8Version version);
 void Chip8Step(Chip8* chip8);
-void Chip8Reset(Chip8* chip8);
-void Chip8Detatch(Chip8* chip8);
 
 #endif

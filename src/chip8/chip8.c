@@ -7,14 +7,8 @@
 
 Chip8 makeChip8()
 {
-    Cpu cpu = {
-        .registers={0},
-        .idx=0,
-        .sp=0,
-        .pc=0,
-    };
     Chip8 chip8 = {
-        .cpu=cpu,
+        .cpu=makeCPU(),
         .ram=makeRAM(4096),
         .vram=makeVRAM(SUPER_CHIP_BUFF_WIDTH*SUPER_CHIP_BUFF_HEIGHT),
         .display={ .width=CHIP8_BUFF_WIDTH, .height=CHIP8_BUFF_HEIGHT },
@@ -33,6 +27,22 @@ Chip8 makeChip8()
     };
 
     return chip8;
+}
+
+void Chip8Init(Chip8* chip8)
+{
+    chip8->keymap = 0;
+    chip8->hiRes = false;
+
+    CPUInit(&chip8->cpu);
+    RAMInit(&chip8->ram);
+    VRAMInit(&chip8->vram);
+}
+
+void Chip8Destroy(Chip8* chip8)
+{
+    RAMDestroy(&chip8->ram);
+    VRAMDestroy(&chip8->vram);
 }
 
 // Note: should call reset before using to avoid undefined state
@@ -97,16 +107,4 @@ void Chip8Step(Chip8* chip8)
     }
 
     chip8->prevOp = op;
-}
-
-void Chip8Reset(Chip8* chip8)
-{
-    RAMInit(&chip8->ram);
-    VRAMInit(&chip8->vram);
-}
-
-void Chip8Detatch(Chip8* chip8)
-{
-    RAMDestroy(&chip8->ram);
-    VRAMDestroy(&chip8->vram);
 }

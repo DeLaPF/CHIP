@@ -26,8 +26,8 @@ void RAMInit(RAM* ram)
     loadLoFont(ram);
     loadHiFont(ram);
 
-    ram->delayTimer=0;
-    ram->soundTimer=0;
+    ram->delayTimer = 0;
+    ram->soundTimer = 0;
     memset(ram->stack, 0, RAM_STACK_SIZE*sizeof(uint16_t));
 }
 

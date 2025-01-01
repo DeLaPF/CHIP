@@ -5,12 +5,14 @@
 
 #include "ram.h"
 
+#define CPU_NUM_REGISTERS 16
+
 typedef struct cpu {
-    uint8_t registers[16];
+    uint8_t registers[CPU_NUM_REGISTERS];
     uint16_t idx;
     uint16_t pc;
     uint8_t sp;
-}Cpu;
+}CPU;
 
 typedef struct op {
     uint16_t code;
@@ -22,7 +24,10 @@ typedef struct op {
     uint16_t nnn;
 }Op;
 
-Op peekOp(Cpu* cpu, RAM* ram);
-Op fetchOp(Cpu* cpu, RAM* ram);
+CPU makeCPU();
+void CPUInit(CPU* cpu);
+
+Op peekOp(CPU* cpu, RAM* ram);
+Op fetchOp(CPU* cpu, RAM* ram);
 
 #endif
