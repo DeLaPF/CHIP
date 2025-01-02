@@ -11,7 +11,7 @@ Chip8 makeChip8()
         .cpu=makeCPU(),
         .ram=makeRAM(4096),
         .vram=makeVRAM(SUPER_CHIP_BUFF_WIDTH*SUPER_CHIP_BUFF_HEIGHT),
-        .display={ .width=CHIP8_BUFF_WIDTH, .height=CHIP8_BUFF_HEIGHT },
+        .display={ .width=CHIP8_BUFF_WIDTH, .height=CHIP8_BUFF_HEIGHT, .didUpdate=false },
         .keymap=0,
         .hiRes=false,
         .flagRegisters={0},
@@ -93,6 +93,8 @@ void Chip8SetVersion(Chip8* chip8, Chip8Version version)
 
 void Chip8Step(Chip8* chip8)
 {
+    chip8->display.didUpdate = false;
+
     // Fetch
     Op op = fetchOp(&chip8->cpu, &chip8->ram);
     // Decode

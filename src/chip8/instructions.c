@@ -7,6 +7,8 @@
 void clearScreen(Chip8* chip8, Op* op)
 {
     VRAMInit(&chip8->vram);
+
+    chip8->display.didUpdate = true;
 }
 
 void subRet(Chip8* chip8, Op* op)
@@ -275,6 +277,8 @@ void updateBuffer(Chip8* chip8, Op* op)
             rowMask >>= 1;
         }
     }
+
+    chip8->display.didUpdate = true;
 }
 
 void haltEmu(Chip8* chip8, Op* op)
@@ -301,6 +305,8 @@ void scrollDN(Chip8* chip8, Op* op)
             }
         }
     }
+
+    chip8->display.didUpdate = true;
 }
 
 void scrollR(Chip8* chip8, Op* op)
@@ -316,6 +322,8 @@ void scrollR(Chip8* chip8, Op* op)
             }
         }
     }
+
+    chip8->display.didUpdate = true;
 }
 
 void scrollL(Chip8* chip8, Op* op)
@@ -331,6 +339,8 @@ void scrollL(Chip8* chip8, Op* op)
             }
         }
     }
+
+    chip8->display.didUpdate = true;
 }
 
 void loRes(Chip8* chip8, Op* op)
@@ -338,6 +348,8 @@ void loRes(Chip8* chip8, Op* op)
     chip8->hiRes = false;
     chip8->display.width = CHIP8_BUFF_WIDTH;
     chip8->display.height = CHIP8_BUFF_HEIGHT;
+
+    chip8->display.didUpdate = true;
 }
 
 void hiRes(Chip8* chip8, Op* op)
@@ -345,6 +357,8 @@ void hiRes(Chip8* chip8, Op* op)
     chip8->hiRes = true;
     chip8->display.width = SUPER_CHIP_BUFF_WIDTH;
     chip8->display.height = SUPER_CHIP_BUFF_HEIGHT;
+
+    chip8->display.didUpdate = true;
 }
 
 void setIdxToHiChar(Chip8* chip8, Op* op)
