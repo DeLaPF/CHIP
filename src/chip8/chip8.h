@@ -21,6 +21,8 @@ typedef enum version {
 typedef struct display {
     uint16_t width;
     uint16_t height;
+
+    bool didUpdate;
 }Chip8Display;
 
 typedef struct chip8 {

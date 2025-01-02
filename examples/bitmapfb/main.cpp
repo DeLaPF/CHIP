@@ -32,6 +32,8 @@ void app(SDL_Window* window, char* romPath)
     BitmapFramebuffer* curBFB = &bfbLo;
 
     Chip8 chip8 = makeChip8();
+    // Chip8SetVersion(&chip8, Chip8Version::CHIP8);
+    // Chip8SetVersion(&chip8, Chip8Version::SCHIP_LEGACY);
     Chip8LoadROM(&chip8, romPath);
 
     int cyclesPerFrame = defaultCyclesPerFrame;
@@ -48,26 +50,37 @@ void app(SDL_Window* window, char* romPath)
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        bool didDisplayUpdate = false;
         for (int i = 0; i < cyclesPerFrame; i++) {
+            // Debug
             if (chip8.isPaused && chip8.step == 0) { break; }
-            // TODO: if display wait is enabled, break on draw instruction
-            Chip8Step(&chip8);
             if (chip8.step > 0) { chip8.step--; }
+
+            Chip8Step(&chip8);
+
+            if (chip8.display.didUpdate) {
+                // Enable only drawing when necessary
+                didDisplayUpdate = true;
+
+                // Display Wait quirk
+                if (chip8.dispWait && !chip8.hiRes) { break; }
+            }
         }
 
         // TODO: handle sound
         if (chip8.ram.delayTimer) { chip8.ram.delayTimer--; }
         if (chip8.ram.soundTimer) { chip8.ram.soundTimer--; }
 
-        // TODO: only update if received display instruction in previous cycles
-        if (chip8.hiRes) {
-            curBFB = &bfbHi;
-            for (auto i = 0; i < bitmapHi->size(); i++) { bitmapHi->at(i) = chip8.vram.pixelBuff[i]; }
-        } else {
-            curBFB = &bfbLo;
-            for (auto i = 0; i < bitmapLo->size(); i++) { bitmapLo->at(i) = chip8.vram.pixelBuff[i]; }
+        if (didDisplayUpdate) {
+            if (chip8.hiRes) {
+                curBFB = &bfbHi;
+                for (auto i = 0; i < bitmapHi->size(); i++) { bitmapHi->at(i) = chip8.vram.pixelBuff[i]; }
+            } else {
+                curBFB = &bfbLo;
+                for (auto i = 0; i < bitmapLo->size(); i++) { bitmapLo->at(i) = chip8.vram.pixelBuff[i]; }
+            }
+            curBFB->updateBitmap();
         }
-        curBFB->updateBitmap();
         chip8Dislay.drawWindow(curBFB->getTextureId());
         if (chip8Dislay.didResize()) {
             bfbLo.resizeRenderDim(chip8Dislay.width(), chip8Dislay.height());
