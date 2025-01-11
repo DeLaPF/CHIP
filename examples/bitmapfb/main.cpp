@@ -12,6 +12,7 @@ extern "C" {
     #include "chip8/chip8.h"
 }
 
+#include "audio.hpp"
 #include "keyboard.hpp"
 
 const int framesPerSecond = 60;
@@ -23,6 +24,10 @@ const int defaultCyclesPerFrame = 80;
 void app(SDL_Window* window, char* romPath)
 {
     SDLEventHandler eH(window);
+    WaveManager wavM(5);
+    wavM.genWaveSamples();
+    wavM.playSample();
+
     // TODO: raise error if can't load shader instead of just silently aborting
     BitmapFramebuffer bfbLo(64, 32, 400, 400, BitmapFramebuffer::SINGLE_BIT);
     auto bitmapLo = bfbLo.getBitmap();
@@ -67,9 +72,11 @@ void app(SDL_Window* window, char* romPath)
             }
         }
 
-        // TODO: handle sound
+        if (chip8.ram.soundTimer) {
+            // wavM.playSample();
+            chip8.ram.soundTimer--;
+        } else { /*wavM.pauseSample();*/ }
         if (chip8.ram.delayTimer) { chip8.ram.delayTimer--; }
-        if (chip8.ram.soundTimer) { chip8.ram.soundTimer--; }
 
         if (didDisplayUpdate) {
             if (chip8.hiRes) {
@@ -112,7 +119,8 @@ int main(int argc, char **argv) {
     char* romPath = argv[1];
     bool startPaused = argc > 2 && argv[2][0] == 'p';
 
-    SDL_Window* window = initSDLGLWindow(800, 600, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE).value();
+    if (initSDL(SDL_INIT_VIDEO | SDL_INIT_AUDIO, SDL_GL_CONTEXT_DEBUG_FLAG) < 0) { return 1; }
+    SDL_Window* window = initSDLGLWindow(800, 600, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     SDL_GLContext glContext = initSDLGLContext(window).value();
     initImguiGL(window, glContext);
 
