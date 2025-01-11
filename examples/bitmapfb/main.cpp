@@ -5,6 +5,7 @@
 #include "glad/gl.h"
 #include "SDL.h"
 
+#include "audio.hpp"
 #include "bitmap_fb.hpp"
 #include "imgui_gl.hpp"
 #include "sdl_gl.hpp"
@@ -12,7 +13,6 @@ extern "C" {
     #include "chip8/chip8.h"
 }
 
-#include "audio.hpp"
 #include "keyboard.hpp"
 
 const int framesPerSecond = 60;
@@ -24,9 +24,7 @@ const int defaultCyclesPerFrame = 80;
 void app(SDL_Window* window, char* romPath)
 {
     SDLEventHandler eH(window);
-    WaveManager wavM(5);
-    wavM.genWaveSamples();
-    wavM.playSample();
+    WaveManager wavM;
 
     // TODO: raise error if can't load shader instead of just silently aborting
     BitmapFramebuffer bfbLo(64, 32, 400, 400, BitmapFramebuffer::SINGLE_BIT);
@@ -73,9 +71,9 @@ void app(SDL_Window* window, char* romPath)
         }
 
         if (chip8.ram.soundTimer) {
-            // wavM.playSample();
+            wavM.playWave(4, 10000);
             chip8.ram.soundTimer--;
-        } else { /*wavM.pauseSample();*/ }
+        } else { wavM.stopSound(); }
         if (chip8.ram.delayTimer) { chip8.ram.delayTimer--; }
 
         if (didDisplayUpdate) {
