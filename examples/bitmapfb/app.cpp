@@ -1,15 +1,13 @@
 #include "app.hpp"
 
-#include "BFGe/entrypoint.hpp"
-#include "BFGe/sdl_gl.hpp"
-
 #include <chrono>
 #include <format>
 #include <iostream>
 #include <stdexcept>
 #include <thread>
 
-#include "keyboard.hpp"
+#include "BFGe/entrypoint.hpp"
+#include "BFGe/sdl_gl.hpp"
 
 // TODO: maybe shaders should be hardcoded into the libraries that use them at compile time
 // Although it is nice to be able to change things on the fly if necessary
@@ -68,7 +66,7 @@ void CHIPApp::Application::onTick()
     this->m_prevFrameStart = SDL_GetTicks();
 
     // CHIP8 core
-    updateKeymap(this->m_engine->getEventHandler(), this->m_chip8);
+    this->updateKeymap(this->m_chip8);
     bool didDisplayUpdate = false;
     for (int i = 0; i < this->m_curCyclesPerFrame; i++) {
         // Debug
@@ -116,7 +114,18 @@ void CHIPApp::Application::onTick()
     this->m_curBFB->render();
 }
 
-// Defines the application that will be ran by the engine
+void CHIPApp::Application::updateKeymap(Chip8& chip8)
+{
+    auto eH = this->m_engine->getEventHandler();
+    chip8.keymap = 0;
+    for (int i = 0; i <= 0xF; i++) {
+        if (eH->isANKeyPressed(IND_TO_KEY[i])) {
+            chip8.keymap |= 1 << i;
+        }
+    }
+}
+
+// Defines the application that will be run by the BFGe::Entrypoint
 BFGe::Application* BFGe::CreateApplication(BFGe::Engine* engine)
 {
     initSDLSubsystem(SDL_INIT_AUDIO);

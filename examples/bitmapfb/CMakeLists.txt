@@ -3,8 +3,6 @@ set (CMAKE_CXX_STANDARD 20)
 
 set(bmpchip_sources
     app.cpp
-
-    keyboard.cpp
 )
 add_executable(bmpChip ${bmpchip_sources})
 target_include_directories(bmpChip PRIVATE .)
