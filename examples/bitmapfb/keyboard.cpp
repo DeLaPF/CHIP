@@ -12,11 +12,11 @@ static const SDL_Scancode IND_TO_KEY[16] = {
     SDL_SCANCODE_V
 };
 
-void updateKeymap(SDLEventHandler& eH, Chip8& chip8)
+void updateKeymap(SDLEventHandler* eH, Chip8& chip8)
 {
     chip8.keymap = 0;
     for (int i = 0; i <= 0xF; i++) {
-        if (eH.isANKeyPressed(IND_TO_KEY[i])) {
+        if (eH->isANKeyPressed(IND_TO_KEY[i])) {
             chip8.keymap |= 1 << i;
         }
     }
